@@ -1,0 +1,47 @@
+name: Publish to Maven Central
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag'
+        required: true
+        default: '0.0.0'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Setup GPG key information
+        run: |
+          mkdir -p ~/.gradle
+          echo "signing.gnupg.passphrase=${GPG_SIGNING_KEY_PW}" >> ~/.gradle/gradle.properties
+        env:
+          GPG_SIGNING_KEY_PW: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Build package
+        run: ./gradlew clean build -x test
+
+      - name: Publish package
+        run: ./gradlew publishToCentralPortal
+        env:
+          SONATYPE_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
