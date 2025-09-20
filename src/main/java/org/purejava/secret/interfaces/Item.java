@@ -1,0 +1,66 @@
+package org.purejava.secret.interfaces;
+
+import org.freedesktop.dbus.DBusPath;
+import org.freedesktop.dbus.annotations.DBusInterfaceName;
+import org.freedesktop.dbus.interfaces.DBusInterface;
+import org.freedesktop.dbus.types.UInt64;
+import org.purejava.secret.Secret;
+
+import java.util.Map;
+
+@DBusInterfaceName("org.freedesktop.Secret.Item")
+public interface Item extends DBusInterface {
+
+    /**
+     * Delete this item.
+     *
+     * @return Prompt   &mdash; A prompt objectpath, or the special value '/' if no prompt is necessary.
+     */
+    DBusPath delete();
+
+    /**
+     * Retrieve the secret for this item.
+     *
+     * @param session   The session to use to encode the secret.
+     * @return secret   &mdash; The secret retrieved.
+     */
+    Secret getSecret(DBusPath session);
+
+    /**
+     * Set the secret for this item.
+     *
+     * @param secret The secret to set, encoded for the included session.
+     */
+    void setSecret(Secret secret);
+
+    /**
+     * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
+     * @return Whether the item is locked and requires authentication, or not.
+     */
+    boolean locked();
+
+    /**
+     * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
+     * @return The attributes of the item.
+     */
+    Map<String, String> attributes();
+
+    /**
+     * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
+     * @return The displayable label of this collection.
+     */
+    String label();
+
+    /**
+     * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
+     * @return The unix time when the item was created.
+     */
+    UInt64 created();
+
+    /**
+     * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
+     * @return The unix time when the item was last modified.
+     */
+    UInt64 modified();
+
+}

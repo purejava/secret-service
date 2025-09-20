@@ -1,4 +1,4 @@
-package org.purejava.secret.interfaces;
+package org.purejava.secret;
 
 import org.freedesktop.dbus.DBusPath;
 import org.freedesktop.dbus.Struct;
