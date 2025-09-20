@@ -1,4 +1,4 @@
-package org.purejava.secretservice.freedesktop.dbus.handlers;
+package org.purejava.secret.freedesktop.dbus.handlers;
 
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.exceptions.DBusException;

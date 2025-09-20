@@ -1,14 +1,11 @@
-package org.purejava.secretservice.freedesktop.dbus.handlers;
+package org.purejava.secret.freedesktop.dbus.handlers;
 
 import org.freedesktop.dbus.DBusPath;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.types.Variant;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 abstract public class Messaging {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Messaging.class);
     private final DBusConnection connection;
     private final MessageHandler msg;
     private final String serviceName;
