@@ -161,12 +161,12 @@ public interface Service extends DBusInterface {
      * Get the collection with the given alias.
      *
      * @param name          An alias, such as 'default'.
-     * @return collection   &mdash; The collection or the the path '/' if no such collection exists.
+     * @return collection   &mdash; The collection or the path '/' if no such collection exists.
      */
     DBusPath readAlias(String name);
 
     /**
-     * Setup a collection alias.
+     * Set up a collection alias.
 
      * @param name          An alias, such as 'default'.
      * @param collection    The collection to make the alias point to. To remove an alias use the special value '/'.
