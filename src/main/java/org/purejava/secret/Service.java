@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Service extends Messaging implements org.purejava.secret.interfaces.Service {
 
@@ -21,6 +22,9 @@ public class Service extends Messaging implements org.purejava.secret.interfaces
     private static final String SERVICE_NOT_AVAILABLE = "Secret Service not available on DBus";
     private static DBusConnection connection;
 
+    private final List<CollectionCreatedHandler> collectionCreatedHandlers = new CopyOnWriteArrayList<>();
+    private final List<CollectionChangedHandler> collectionChangedHandlers = new CopyOnWriteArrayList<>();
+    private final List<CollectionDeletedHandler> collectionDeletedHandlers = new CopyOnWriteArrayList<>();
     private org.purejava.secret.interfaces.Service service = null;
 
     static {
@@ -38,6 +42,9 @@ public class Service extends Messaging implements org.purejava.secret.interfaces
         if (null != connection) {
             try {
                 this.service = connection.getRemoteObject(Static.Service.SECRETS, DBUS_PATH, org.purejava.secret.interfaces.Service.class);
+                connection.addSigHandler(CollectionCreated.class, this::notifyOnCollectionCreated);
+                connection.addSigHandler(CollectionChanged.class, this::notifyOnCollectionChanged);
+                connection.addSigHandler(CollectionDeleted.class, this::notifyOnCollectionDeleted);
             } catch (DBusException e) {
                 LOG.error(e.toString(), e.getCause());
             }
@@ -264,5 +271,51 @@ public class Service extends Messaging implements org.purejava.secret.interfaces
     @Override
     public String getObjectPath() {
         return super.getDBusPath();
+    }
+
+    private void notifyOnCollectionCreated(CollectionCreated signal) {
+        if (getObjectPath().equals(signal.collection.getPath())) {
+            for (CollectionCreatedHandler handler : collectionCreatedHandlers) {
+                handler.onCollectionCreated(signal.collection);
+            }
+        }
+    }
+    private void notifyOnCollectionChanged(CollectionChanged signal) {
+        if (getObjectPath().equals(signal.collection.getPath())) {
+            for (CollectionChangedHandler handler : collectionChangedHandlers) {
+                handler.onCollectionChanged(signal.collection);
+            }
+        }
+    }
+    private void notifyOnCollectionDeleted(CollectionDeleted signal) {
+        if (getObjectPath().equals(signal.collection.getPath())) {
+            for (CollectionDeletedHandler handler : collectionDeletedHandlers) {
+                handler.onCollectionDeleted(signal.collection);
+            }
+        }
+    }
+
+    public void addCollectionCreatedHandler(CollectionCreatedHandler handler) {
+        collectionCreatedHandlers.add(handler);
+    }
+
+    public void removeCollectionCreatedHandler(CollectionCreatedHandler handler) {
+        collectionCreatedHandlers.remove(handler);
+    }
+
+    public void addCollectionChangedHandler(CollectionChangedHandler handler) {
+        collectionChangedHandlers.add(handler);
+    }
+
+    public void removeCollectionChangedHandler(CollectionChangedHandler handler) {
+        collectionChangedHandlers.remove(handler);
+    }
+
+    public void addCollectionDeletedHandler(CollectionDeletedHandler handler) {
+        collectionDeletedHandlers.add(handler);
+    }
+
+    public void removeCollectionDeletedHandler(CollectionDeletedHandler handler) {
+        collectionDeletedHandlers.remove(handler);
     }
 }

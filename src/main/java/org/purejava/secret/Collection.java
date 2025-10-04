@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Collection extends Messaging implements org.purejava.secret.interfaces.Collection {
 
@@ -22,6 +23,9 @@ public class Collection extends Messaging implements org.purejava.secret.interfa
     private static final String COLLECTION_NOT_AVAILABLE = "Collection not available on DBus";
     private static DBusConnection connection;
 
+    private final List<ItemCreatedHandler> itemCreatedHandlers = new CopyOnWriteArrayList<>();
+    private final List<ItemChangedHandler> itemChangedHandlers = new CopyOnWriteArrayList<>();
+    private final List<ItemDeletedHandler> itemDeletedHandlers = new CopyOnWriteArrayList<>();
     private org.purejava.secret.interfaces.Collection collection = null;
 
     static {
@@ -39,6 +43,7 @@ public class Collection extends Messaging implements org.purejava.secret.interfa
         if (null != connection) {
             try {
                 this.collection = connection.getRemoteObject(Static.Service.SECRETS, DEFAULT_COLLECTION, org.purejava.secret.interfaces.Collection.class);
+                registerSignals();
             } catch (DBusException e) {
                 LOG.error(e.toString(), e.getCause());
             }
@@ -52,12 +57,19 @@ public class Collection extends Messaging implements org.purejava.secret.interfa
         if (null != connection) {
             try {
                 this.collection = connection.getRemoteObject(Static.Service.SECRETS, path, org.purejava.secret.interfaces.Collection.class);
+                registerSignals();
             } catch (DBusException e) {
                 LOG.error(e.toString(), e.getCause());
             }
         } else {
             LOG.error("Dbus not available");
         }
+    }
+
+    private void registerSignals() throws DBusException {
+        connection.addSigHandler(org.purejava.secret.interfaces.Collection.ItemCreated.class, this::notifyOnItemCreated);
+        connection.addSigHandler(org.purejava.secret.interfaces.Collection.ItemChanged.class, this::notifyOnItemChanged);
+        connection.addSigHandler(org.purejava.secret.interfaces.Collection.ItemDeleted.class, this::notifyOnItemDeleted);
     }
 
     private boolean isUsable() {
@@ -245,5 +257,51 @@ public class Collection extends Messaging implements org.purejava.secret.interfa
     @Override
     public String getObjectPath() {
         return super.getDBusPath();
+    }
+
+    private void notifyOnItemCreated(ItemCreated signal) {
+        if (getObjectPath().equals(signal.item.getPath())) {
+            for (ItemCreatedHandler handler : itemCreatedHandlers) {
+                handler.onItemCreated(signal.item);
+            }
+        }
+    }
+    private void notifyOnItemChanged(ItemChanged signal) {
+        if (getObjectPath().equals(signal.item.getPath())) {
+            for (ItemChangedHandler handler : itemChangedHandlers) {
+                handler.onItemChanged(signal.item);
+            }
+        }
+    }
+    private void notifyOnItemDeleted(ItemDeleted signal) {
+        if (getObjectPath().equals(signal.item.getPath())) {
+            for (ItemDeletedHandler handler : itemDeletedHandlers) {
+                handler.onItemDeleted(signal.item);
+            }
+        }
+    }
+
+    public void addItemCreatedHandler(ItemCreatedHandler handler) {
+        itemCreatedHandlers.add(handler);
+    }
+
+    public void removeItemCreatedHandler(ItemCreatedHandler handler) {
+        itemCreatedHandlers.remove(handler);
+    }
+
+    public void addItemChangedHandler(ItemChangedHandler handler) {
+        itemChangedHandlers.add(handler);
+    }
+
+    public void removeItemChangedHandler(ItemChangedHandler handler) {
+        itemChangedHandlers.remove(handler);
+    }
+
+    public void addItemDeletedHandler(ItemDeletedHandler handler) {
+        itemDeletedHandlers.add(handler);
+    }
+
+    public void removeItemDeletedHandler(ItemDeletedHandler handler) {
+        itemDeletedHandlers.remove(handler);
     }
 }
