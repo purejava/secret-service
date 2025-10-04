@@ -14,7 +14,7 @@ public interface Item extends DBusInterface {
     /**
      * Delete this item.
      *
-     * @return Prompt   &mdash; A prompt objectpath, or the special value '/' if no prompt is necessary.
+     * @return Prompt   &mdash; A prompt dbuspath, or the special value '/' if no prompt is necessary.
      */
     DBusPath delete();
 
