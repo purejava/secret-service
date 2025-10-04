@@ -18,7 +18,6 @@ import java.util.Map;
 public class Collection extends Messaging implements org.purejava.secret.interfaces.Collection {
 
     private static final Logger LOG = LoggerFactory.getLogger(Collection.class);
-    private static final String BUS_NAME = "org.freedesktop.secrets";
     private static final String DEFAULT_COLLECTION = "/org/freedesktop/secrets/aliases/default";
     private static final String COLLECTION_NOT_AVAILABLE = "Collection not available on DBus";
     private static DBusConnection connection;
@@ -36,10 +35,10 @@ public class Collection extends Messaging implements org.purejava.secret.interfa
     }
 
     public Collection() {
-        super(connection, BUS_NAME, DEFAULT_COLLECTION, BUS_NAME);
+        super(connection, Static.Service.SECRETS, DEFAULT_COLLECTION, Static.Service.SECRETS);
         if (null != connection) {
             try {
-                this.collection = connection.getRemoteObject(BUS_NAME, DEFAULT_COLLECTION, org.purejava.secret.interfaces.Collection.class);
+                this.collection = connection.getRemoteObject(Static.Service.SECRETS, DEFAULT_COLLECTION, org.purejava.secret.interfaces.Collection.class);
             } catch (DBusException e) {
                 LOG.error(e.toString(), e.getCause());
             }
@@ -49,10 +48,10 @@ public class Collection extends Messaging implements org.purejava.secret.interfa
     }
 
     public Collection(DBusPath path) {
-        super(connection, BUS_NAME, path.getPath(), BUS_NAME);
+        super(connection, Static.Service.SECRETS, path.getPath(), Static.Service.SECRETS);
         if (null != connection) {
             try {
-                this.collection = connection.getRemoteObject(BUS_NAME, path, org.purejava.secret.interfaces.Collection.class);
+                this.collection = connection.getRemoteObject(Static.Service.SECRETS, path, org.purejava.secret.interfaces.Collection.class);
             } catch (DBusException e) {
                 LOG.error(e.toString(), e.getCause());
             }
