@@ -206,6 +206,16 @@ public class Collection extends Messaging implements org.purejava.secret.interfa
     }
 
     /**
+     * Read-only property "Created"
+     *
+     * @return The unix time when the collection was created.
+     */
+    public Long getCreated() {
+        var c = created();
+        return null == c ? null : c.longValue();
+    }
+
+    /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      *
      * @return The unix time when the collection was last modified.
@@ -218,6 +228,16 @@ public class Collection extends Messaging implements org.purejava.secret.interfa
         }
         var response = getProperty("Modified");
         return null == response ? null : (UInt64) response.getValue();
+    }
+
+    /**
+     * Read-only property "Modified"
+     *
+     * @return The unix time when the collection was last modified.
+     */
+    public Long getModified() {
+        var m = modified();
+        return null == m ? null : m.longValue();
     }
 
     /**
