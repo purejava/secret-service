@@ -14,7 +14,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Prompt extends Messaging implements org.purejava.secret.interfaces.Prompt {
 
     private static final Logger LOG = LoggerFactory.getLogger(Prompt.class);
-    private static final String DBUS_PATH = "/org/freedesktop/secrets/prompt";
     private static final String PROMPT_NOT_AVAILABLE = "Prompt not available on DBus";
     private static DBusConnection connection;
 
@@ -32,10 +31,10 @@ public class Prompt extends Messaging implements org.purejava.secret.interfaces.
     }
 
     public Prompt() {
-        super(connection, Static.Service.SECRETS, DBUS_PATH, Static.Service.SECRETS);
+        super(connection, Static.Service.SECRETS, Static.DBusPath.PROMPT, Static.Interfaces.PROMPT);
         if (null != connection) {
             try {
-                this.prompt = connection.getRemoteObject(Static.Service.SECRETS, DBUS_PATH, org.purejava.secret.interfaces.Prompt.class);
+                this.prompt = connection.getRemoteObject(Static.Service.SECRETS, Static.DBusPath.PROMPT, org.purejava.secret.interfaces.Prompt.class);
                 connection.addSigHandler(org.purejava.secret.interfaces.Prompt.Completed.class, this::notifyOnCompleted);
             } catch (DBusException e) {
                 LOG.error(e.toString(), e.getCause());

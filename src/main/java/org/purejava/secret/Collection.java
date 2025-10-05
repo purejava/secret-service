@@ -19,7 +19,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Collection extends Messaging implements org.purejava.secret.interfaces.Collection {
 
     private static final Logger LOG = LoggerFactory.getLogger(Collection.class);
-    private static final String DEFAULT_COLLECTION = "/org/freedesktop/secrets/aliases/default";
     private static final String COLLECTION_NOT_AVAILABLE = "Collection not available on DBus";
     private static DBusConnection connection;
 
@@ -39,10 +38,10 @@ public class Collection extends Messaging implements org.purejava.secret.interfa
     }
 
     public Collection() {
-        super(connection, Static.Service.SECRETS, DEFAULT_COLLECTION, Static.Service.SECRETS);
+        super(connection, Static.Service.SECRETS, Static.DBusPath.DEFAULT_COLLECTION, Static.Interfaces.COLLECTION);
         if (null != connection) {
             try {
-                this.collection = connection.getRemoteObject(Static.Service.SECRETS, DEFAULT_COLLECTION, org.purejava.secret.interfaces.Collection.class);
+                this.collection = connection.getRemoteObject(Static.Service.SECRETS, Static.DBusPath.DEFAULT_COLLECTION, org.purejava.secret.interfaces.Collection.class);
                 registerSignals();
             } catch (DBusException e) {
                 LOG.error(e.toString(), e.getCause());

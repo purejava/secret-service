@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 public class Session extends Messaging implements org.purejava.secret.interfaces.Session {
 
     private static final Logger LOG = LoggerFactory.getLogger(Session.class);
-    private static final String DBUS_PATH = "/org/freedesktop/secrets/session";
     private static DBusConnection connection;
 
     private org.purejava.secret.interfaces.Session session = null;
@@ -27,10 +26,10 @@ public class Session extends Messaging implements org.purejava.secret.interfaces
     }
 
     public Session() {
-        super(connection, Static.Service.SECRETS, DBUS_PATH, Static.Service.SECRETS);
+        super(connection, Static.Service.SECRETS, Static.DBusPath.SESSION, Static.Interfaces.SESSION);
         if (null != connection) {
             try {
-                this.session = connection.getRemoteObject(Static.Service.SECRETS, DBUS_PATH, org.purejava.secret.interfaces.Session.class);
+                this.session = connection.getRemoteObject(Static.Service.SECRETS, Static.DBusPath.SESSION, org.purejava.secret.interfaces.Session.class);
             } catch (DBusException e) {
                 LOG.error(e.toString(), e.getCause());
             }

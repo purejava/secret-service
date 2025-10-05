@@ -35,7 +35,7 @@ public class Item extends Messaging implements org.purejava.secret.interfaces.It
     }
 
     public Item(String collection, String item_id) {
-        super(connection, Static.Service.SECRETS, COLLECTION + "/" + collection + "/" + item_id, Static.Service.SECRETS);
+        super(connection, Static.Service.SECRETS, COLLECTION + "/" + collection + "/" + item_id, Static.Interfaces.ITEM);
         if (null != connection) {
             try {
                 this.item = connection.getRemoteObject(Static.Service.SECRETS, COLLECTION + "/" + collection + "/" + item_id, org.purejava.secret.interfaces.Item.class);

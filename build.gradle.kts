@@ -41,7 +41,7 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
     filter {
-        includeTestsMatching("UpdatePortalTest")
+        includeTestsMatching("ServiceTest")
     }
 }
 

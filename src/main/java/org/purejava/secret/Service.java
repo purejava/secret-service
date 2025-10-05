@@ -18,7 +18,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Service extends Messaging implements org.purejava.secret.interfaces.Service {
 
     private static final Logger LOG = LoggerFactory.getLogger(Service.class);
-    private static final String DBUS_PATH = "/org/freedesktop/secrets";
     private static final String SERVICE_NOT_AVAILABLE = "Secret Service not available on DBus";
     private static DBusConnection connection;
 
@@ -38,10 +37,10 @@ public class Service extends Messaging implements org.purejava.secret.interfaces
     }
 
     public Service() {
-        super(connection, Static.Service.SECRETS, DBUS_PATH, Static.Service.SECRETS);
+        super(connection, Static.Service.SECRETS, Static.DBusPath.SECRETS, Static.Interfaces.SERVICE);
         if (null != connection) {
             try {
-                this.service = connection.getRemoteObject(Static.Service.SECRETS, DBUS_PATH, org.purejava.secret.interfaces.Service.class);
+                this.service = connection.getRemoteObject(Static.Service.SECRETS, Static.DBusPath.SECRETS, org.purejava.secret.interfaces.Service.class);
                 connection.addSigHandler(CollectionCreated.class, this::notifyOnCollectionCreated);
                 connection.addSigHandler(CollectionChanged.class, this::notifyOnCollectionChanged);
                 connection.addSigHandler(CollectionDeleted.class, this::notifyOnCollectionDeleted);
