@@ -1,9 +1,7 @@
 package org.purejava.secret;
 
 import org.freedesktop.dbus.connections.impl.DBusConnection;
-import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
 import org.freedesktop.dbus.exceptions.DBusException;
-import org.freedesktop.dbus.interfaces.DBus;
 import org.purejava.secret.freedesktop.dbus.handlers.Messaging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,19 +13,13 @@ public class Prompt extends Messaging implements org.purejava.secret.interfaces.
 
     private static final Logger LOG = LoggerFactory.getLogger(Prompt.class);
     private static final String PROMPT_NOT_AVAILABLE = "Prompt not available on DBus";
-    private static DBusConnection connection;
+    private static final DBusConnection connection;
 
     private final List<CompletedHandler> completedHandlers = new CopyOnWriteArrayList<>();
     private org.purejava.secret.interfaces.Prompt prompt = null;
 
     static {
-        try {
-            connection = DBusConnectionBuilder.forSessionBus().withShared(false).build();
-            connection.getRemoteObject("org.freedesktop.DBus",
-                    "/org/freedesktop/DBus", DBus.class);
-        } catch (DBusException e) {
-            LOG.error(e.toString(), e.getCause());
-        }
+        connection = ConnectionManager.getConnection();
     }
 
     public Prompt() {

@@ -2,9 +2,7 @@ package org.purejava.secret;
 
 import org.freedesktop.dbus.DBusPath;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
-import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
 import org.freedesktop.dbus.exceptions.DBusException;
-import org.freedesktop.dbus.interfaces.DBus;
 import org.freedesktop.dbus.types.UInt64;
 import org.purejava.secret.freedesktop.dbus.handlers.Messaging;
 import org.slf4j.Logger;
@@ -18,20 +16,14 @@ public class Item extends Messaging implements org.purejava.secret.interfaces.It
 
     private static final Logger LOG = LoggerFactory.getLogger(Item.class);
     private static final String ITEM_NOT_AVAILABLE = "Item not available on DBus";
-    private static DBusConnection connection;
+    private static final DBusConnection connection;
 
     private final String collection;
     private final String item_id;
     private org.purejava.secret.interfaces.Item item = null;
 
     static {
-        try {
-            connection = DBusConnectionBuilder.forSessionBus().withShared(false).build();
-            connection.getRemoteObject("org.freedesktop.DBus",
-                    "/org/freedesktop/DBus", DBus.class);
-        } catch (DBusException e) {
-            LOG.error(e.toString(), e.getCause());
-        }
+        connection = ConnectionManager.getConnection();
     }
 
     public Item(String collection, String item_id) {

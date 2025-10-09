@@ -2,9 +2,7 @@ package org.purejava.secret;
 
 import org.freedesktop.dbus.DBusPath;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
-import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
 import org.freedesktop.dbus.exceptions.DBusException;
-import org.freedesktop.dbus.interfaces.DBus;
 import org.freedesktop.dbus.types.Variant;
 import org.purejava.secret.freedesktop.dbus.handlers.Messaging;
 import org.slf4j.Logger;
@@ -19,7 +17,7 @@ public class Service extends Messaging implements org.purejava.secret.interfaces
 
     private static final Logger LOG = LoggerFactory.getLogger(Service.class);
     private static final String SERVICE_NOT_AVAILABLE = "Secret Service not available on DBus";
-    private static DBusConnection connection;
+    private static final DBusConnection connection;
 
     private final List<CollectionCreatedHandler> collectionCreatedHandlers = new CopyOnWriteArrayList<>();
     private final List<CollectionChangedHandler> collectionChangedHandlers = new CopyOnWriteArrayList<>();
@@ -27,13 +25,7 @@ public class Service extends Messaging implements org.purejava.secret.interfaces
     private org.purejava.secret.interfaces.Service service = null;
 
     static {
-        try {
-            connection = DBusConnectionBuilder.forSessionBus().withShared(false).build();
-            connection.getRemoteObject("org.freedesktop.DBus",
-                    "/org/freedesktop/DBus", DBus.class);
-        } catch (DBusException e) {
-            LOG.error(e.toString(), e.getCause());
-        }
+        connection = ConnectionManager.getConnection();
     }
 
     public Service() {

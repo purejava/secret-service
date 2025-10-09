@@ -2,9 +2,7 @@ package org.purejava.secret;
 
 import org.freedesktop.dbus.DBusPath;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
-import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
 import org.freedesktop.dbus.exceptions.DBusException;
-import org.freedesktop.dbus.interfaces.DBus;
 import org.freedesktop.dbus.types.UInt64;
 import org.freedesktop.dbus.types.Variant;
 import org.purejava.secret.freedesktop.dbus.handlers.Messaging;
@@ -20,7 +18,7 @@ public class Collection extends Messaging implements org.purejava.secret.interfa
 
     private static final Logger LOG = LoggerFactory.getLogger(Collection.class);
     private static final String COLLECTION_NOT_AVAILABLE = "Collection not available on DBus";
-    private static DBusConnection connection;
+    private static final DBusConnection connection;
 
     private final List<ItemCreatedHandler> itemCreatedHandlers = new CopyOnWriteArrayList<>();
     private final List<ItemChangedHandler> itemChangedHandlers = new CopyOnWriteArrayList<>();
@@ -28,13 +26,7 @@ public class Collection extends Messaging implements org.purejava.secret.interfa
     private org.purejava.secret.interfaces.Collection collection = null;
 
     static {
-        try {
-            connection = DBusConnectionBuilder.forSessionBus().withShared(false).build();
-            connection.getRemoteObject("org.freedesktop.DBus",
-                    "/org/freedesktop/DBus", DBus.class);
-        } catch (DBusException e) {
-            LOG.error(e.toString(), e.getCause());
-        }
+        connection = ConnectionManager.getConnection();
     }
 
     public Collection() {
