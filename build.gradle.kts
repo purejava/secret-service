@@ -30,6 +30,7 @@ repositories {
 dependencies {
     api(libs.com.github.hypfvieh.dbus.java.core)
     api(libs.com.github.hypfvieh.dbus.java.transport.native.unixsocket)
+    api(libs.at.favre.lib.hkdf)
     api(libs.org.slf4j.slf4j.api)
     testImplementation(libs.org.junit.jupiter.junit.jupiter.api)
     testImplementation(libs.org.junit.jupiter.junit.jupiter.engine)

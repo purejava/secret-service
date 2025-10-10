@@ -4,6 +4,7 @@
 [versions]
 com-github-hypfvieh-dbus-java-core = "5.1.1"
 com-github-hypfvieh-dbus-java-transport-native-unixsocket = "5.1.1"
+at-favre-lib-hkdf = "2.0.0"
 org-junit-jupiter-junit-jupiter = "5.13.4"
 org-junit-jupiter-junit-jupiter-api = "5.13.4"
 org-junit-jupiter-junit-jupiter-engine = "5.13.4"
@@ -13,6 +14,7 @@ org-slf4j-slf4j-simple = "2.0.17"
 [libraries]
 com-github-hypfvieh-dbus-java-core = { module = "com.github.hypfvieh:dbus-java-core", version.ref = "com-github-hypfvieh-dbus-java-core" }
 com-github-hypfvieh-dbus-java-transport-native-unixsocket = { module = "com.github.hypfvieh:dbus-java-transport-native-unixsocket", version.ref = "com-github-hypfvieh-dbus-java-transport-native-unixsocket" }
+at-favre-lib-hkdf = { module = "at.favre.lib:hkdf", version.ref = "at-favre-lib-hkdf" }
 org-junit-jupiter-junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "org-junit-jupiter-junit-jupiter" }
 org-junit-jupiter-junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "org-junit-jupiter-junit-jupiter-api" }
 org-junit-jupiter-junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "org-junit-jupiter-junit-jupiter-engine" }

@@ -14,7 +14,6 @@ public class Static {
         public static final String SESSION_COLLECTION = "/org/freedesktop/secrets/collection/session";
         public static final String LOGIN_COLLECTION = "/org/freedesktop/secrets/collection/login";
         public static final String KDEWALLET_COLLECTION = "/org/freedesktop/secrets/collection/kdewallet";
-
         public static final String PROMPT = "/org/freedesktop/secrets/prompt";
     }
 
