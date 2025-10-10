@@ -42,7 +42,7 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
     filter {
-        includeTestsMatching("ServiceTest")
+        includeTestsMatching("*Test")
     }
 }
 

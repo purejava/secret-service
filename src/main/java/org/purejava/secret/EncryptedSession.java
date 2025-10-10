@@ -2,7 +2,6 @@ package org.purejava.secret;
 
 import at.favre.lib.hkdf.HKDF;
 import org.freedesktop.dbus.DBusPath;
-import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.types.Variant;
 
 import javax.crypto.*;
@@ -17,6 +16,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
+import java.util.stream.IntStream;
 
 public class EncryptedSession {
     public static final int PRIVATE_VALUE_BITS = 1024;
@@ -71,12 +72,14 @@ public class EncryptedSession {
         BigInteger ya = ((DHPublicKey) publicKey).getY();
 
         // open session with "Client DH pub key as an array of bytes" without prime or generator
-        Pair<Variant<byte[]>, DBusPath> osResponse = service.openSession(
+        Pair<Variant<ArrayList<Byte>>, DBusPath> osResponse = service.OpenSession(
                 Algorithm.DH_IETF1024_SHA256_AES128_CBC_PKCS7, new Variant<>(ya.toByteArray()));
 
         // transform peer's raw Y to a public key
         if (osResponse != null) {
-            yb = osResponse.a.getValue();
+            ArrayList<Byte> list = osResponse.a.getValue();
+            yb = new byte[list.size()];
+            IntStream.range(0, list.size()).forEach(i -> yb[i] = list.get(i));
             session = osResponse.b;
             return true;
         } else {

@@ -60,9 +60,9 @@ public class Service extends Messaging implements org.purejava.secret.interfaces
      * result   &mdash; The object path of the session, if session was created.<br>
      */
     @Override
-    public Pair<Variant<byte[]>, DBusPath> openSession(String algorithm, Variant<?> input) {
+    public Pair<Variant<ArrayList<Byte>>, DBusPath> OpenSession(String algorithm, Variant<?> input) {
         if (isUsable()) {
-            return service.openSession(algorithm, input);
+            return service.OpenSession(algorithm, input);
         }
         LOG.error(SERVICE_NOT_AVAILABLE);
         return null;
@@ -87,9 +87,9 @@ public class Service extends Messaging implements org.purejava.secret.interfaces
      * prompt       &mdash; A prompt object if prompting is necessary, or '/' if no prompt was needed.<br>
      */
     @Override
-    public Pair<DBusPath, DBusPath> createCollection(Map<String, Variant<?>> properties, String alias) {
+    public Pair<DBusPath, DBusPath> CreateCollection(Map<String, Variant<?>> properties, String alias) {
         if (isUsable()) {
-            return service.createCollection(properties, alias);
+            return service.CreateCollection(properties, alias);
         }
         LOG.error(SERVICE_NOT_AVAILABLE);
         return null;
@@ -121,9 +121,9 @@ public class Service extends Messaging implements org.purejava.secret.interfaces
      * locked        &mdash; Items found that require authentication.<br>
      */
     @Override
-    public Pair<List<DBusPath>, List<DBusPath>> searchItems(Map<String, String> attributes) {
+    public Pair<List<DBusPath>, List<DBusPath>> SearchItems(Map<String, String> attributes) {
         if (isUsable()) {
-            return service.searchItems(attributes);
+            return service.SearchItems(attributes);
         }
         LOG.error(SERVICE_NOT_AVAILABLE);
         return null;
@@ -140,7 +140,7 @@ public class Service extends Messaging implements org.purejava.secret.interfaces
      * prompt       &mdash; A prompt object which can be used to unlock the remaining objects, or the special value '/' when no prompt is necessary.<br>
      */
     @Override
-    public Pair<List<DBusPath>, DBusPath> unlock(List<DBusPath> objects) {
+    public Pair<List<DBusPath>, DBusPath> Unlock(List<DBusPath> objects) {
         if (!isUsable()) {
             LOG.error(SERVICE_NOT_AVAILABLE);
             return null;
@@ -149,7 +149,7 @@ public class Service extends Messaging implements org.purejava.secret.interfaces
             LOG.error("Cannot unlock as required objects to unlock are missing");
             return null;
         }
-        return service.unlock(objects);
+        return service.Unlock(objects);
     }
 
     /**
@@ -163,7 +163,7 @@ public class Service extends Messaging implements org.purejava.secret.interfaces
      * prompt      &mdash; A prompt to lock the objects, or the special value '/' when no prompt is necessary.<br>
      */
     @Override
-    public Pair<List<DBusPath>, DBusPath> lock(List<DBusPath> objects) {
+    public Pair<List<DBusPath>, DBusPath> Lock(List<DBusPath> objects) {
         if (!isUsable()) {
             LOG.error(SERVICE_NOT_AVAILABLE);
             return null;
@@ -172,7 +172,7 @@ public class Service extends Messaging implements org.purejava.secret.interfaces
             LOG.error("Cannot lock as required objects to lock are missing");
             return null;
         }
-        return service.lock(objects);
+        return service.Lock(objects);
     }
 
     /**
@@ -183,7 +183,7 @@ public class Service extends Messaging implements org.purejava.secret.interfaces
      * @return secrets     &mdash; Secrets for the items.
      */
     @Override
-    public Map<DBusPath, Secret> getSecrets(List<DBusPath> items, DBusPath session) {
+    public Map<DBusPath, Secret> GetSecrets(List<DBusPath> items, DBusPath session) {
         if (!isUsable()) {
             LOG.error(SERVICE_NOT_AVAILABLE);
             return null;
@@ -196,7 +196,7 @@ public class Service extends Messaging implements org.purejava.secret.interfaces
             LOG.error("Cannot getSecrets as required session is missing");
             return null;
         }
-        return service.getSecrets(items, session);
+        return service.GetSecrets(items, session);
     }
 
     /**
@@ -206,7 +206,7 @@ public class Service extends Messaging implements org.purejava.secret.interfaces
      * @return collection   &mdash; The collection or the path '/' if no such collection exists.
      */
     @Override
-    public DBusPath readAlias(String name) {
+    public DBusPath ReadAlias(String name) {
         if (!isUsable()) {
             LOG.error(SERVICE_NOT_AVAILABLE);
             return null;
@@ -215,7 +215,7 @@ public class Service extends Messaging implements org.purejava.secret.interfaces
             LOG.error("Cannot readAlias as required name is missing");
             return null;
         }
-        return service.readAlias(name);
+        return service.ReadAlias(name);
     }
 
     /**
@@ -225,7 +225,7 @@ public class Service extends Messaging implements org.purejava.secret.interfaces
      * @param collection The collection to make the alias point to. To remove an alias use the special value '/'.
      */
     @Override
-    public void setAlias(String name, DBusPath collection) {
+    public void SetAlias(String name, DBusPath collection) {
         if (!isUsable()) {
             LOG.error(SERVICE_NOT_AVAILABLE);
             return;
@@ -238,7 +238,7 @@ public class Service extends Messaging implements org.purejava.secret.interfaces
             LOG.error("Cannot setAlias as required collection is missing");
             return;
         }
-        service.setAlias(name, collection);
+        service.SetAlias(name, collection);
     }
 
     /**
@@ -247,7 +247,7 @@ public class Service extends Messaging implements org.purejava.secret.interfaces
      * @return A list of present collections.
      */
     @Override
-    public List<DBusPath> collections() {
+    public List<DBusPath> Collections() {
         if (!isUsable()) {
             LOG.error(SERVICE_NOT_AVAILABLE);
             return null;

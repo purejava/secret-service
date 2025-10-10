@@ -9,6 +9,7 @@ import org.freedesktop.dbus.types.Variant;
 import org.purejava.secret.Pair;
 import org.purejava.secret.Secret;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -74,7 +75,7 @@ public interface Service extends DBusInterface {
      * <br>
      * result   &mdash; The object path of the session, if session was created.<br>
      */
-    Pair<Variant<byte[]>, DBusPath> openSession(String algorithm, Variant<?> input);
+    Pair<Variant<ArrayList<Byte>>, DBusPath> OpenSession(String algorithm, Variant<?> input);
 
     /**
      * Create a new collection with the specified properties.
@@ -94,7 +95,7 @@ public interface Service extends DBusInterface {
      * <br>
      * prompt       &mdash; A prompt object if prompting is necessary, or '/' if no prompt was needed.<br>
      */
-    Pair<DBusPath, DBusPath> createCollection(Map<String, Variant<?>> properties, String alias);
+    Pair<DBusPath, DBusPath> CreateCollection(Map<String, Variant<?>> properties, String alias);
 
     /**
      * Find items in any collection.
@@ -122,7 +123,7 @@ public interface Service extends DBusInterface {
      * <br>
      * locked        &mdash; Items found that require authentication.<br>
      */
-    Pair<List<DBusPath>, List<DBusPath>> searchItems(Map<String, String> attributes);
+    Pair<List<DBusPath>, List<DBusPath>> SearchItems(Map<String, String> attributes);
 
     /**
      * Unlock the specified objects.
@@ -134,7 +135,7 @@ public interface Service extends DBusInterface {
      * <br>
      * prompt       &mdash; A prompt object which can be used to unlock the remaining objects, or the special value '/' when no prompt is necessary.<br>
      */
-    Pair<List<DBusPath>, DBusPath> unlock(List<DBusPath> objects);
+    Pair<List<DBusPath>, DBusPath> Unlock(List<DBusPath> objects);
 
     /**
      * Lock the items.
@@ -146,7 +147,7 @@ public interface Service extends DBusInterface {
      * <br>
      * prompt      &mdash; A prompt to lock the objects, or the special value '/' when no prompt is necessary.<br>
      */
-    Pair<List<DBusPath>, DBusPath> lock(List<DBusPath> objects);
+    Pair<List<DBusPath>, DBusPath> Lock(List<DBusPath> objects);
 
     /**
      * Retrieve multiple secrets from different items.
@@ -155,7 +156,7 @@ public interface Service extends DBusInterface {
      * @param session      The session to use to encode the secrets.
      * @return secrets     &mdash; Secrets for the items.
      */
-    Map<DBusPath, Secret> getSecrets(List<DBusPath> items, DBusPath session);
+    Map<DBusPath, Secret> GetSecrets(List<DBusPath> items, DBusPath session);
 
     /**
      * Get the collection with the given alias.
@@ -163,7 +164,7 @@ public interface Service extends DBusInterface {
      * @param name          An alias, such as 'default'.
      * @return collection   &mdash; The collection or the path '/' if no such collection exists.
      */
-    DBusPath readAlias(String name);
+    DBusPath ReadAlias(String name);
 
     /**
      * Set up a collection alias.
@@ -171,12 +172,12 @@ public interface Service extends DBusInterface {
      * @param name          An alias, such as 'default'.
      * @param collection    The collection to make the alias point to. To remove an alias use the special value '/'.
      */
-    void setAlias(String name, DBusPath collection);
+    void SetAlias(String name, DBusPath collection);
 
     /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      * @return A list of present collections.
      */
-    List<DBusPath> collections();
+    List<DBusPath> Collections();
 
 }
