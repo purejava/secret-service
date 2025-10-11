@@ -1,4 +1,4 @@
-package org.purejava.secret;
+package org.purejava.secret.api.handlers;
 
 import org.freedesktop.dbus.DBusPath;
 

@@ -1,4 +1,4 @@
-package org.purejava.secret;
+package org.purejava.secret.impl;
 
 import org.freedesktop.dbus.DBusPath;
 import org.freedesktop.dbus.Struct;

@@ -1,4 +1,4 @@
-package org.purejava.secret;
+package org.purejava.secret.api;
 
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;

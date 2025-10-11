@@ -4,6 +4,8 @@ import org.freedesktop.dbus.DBusPath;
 import org.freedesktop.dbus.types.Variant;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.purejava.secret.api.EncryptedSession;
+import org.purejava.secret.api.Service;
 
 import java.util.ArrayList;
 import java.util.stream.IntStream;
@@ -16,7 +18,7 @@ public class PlainSessionTest {
     @DisplayName("Establish a plain session")
     void establishPlainSession() {
         Service service = new Service();
-        var response = service.OpenSession(EncryptedSession.Algorithm.PLAIN, new Variant<>(""));
+        var response = service.openSession(EncryptedSession.Algorithm.PLAIN, new Variant<>(""));
         ArrayList<Byte> list = response.a.getValue();
         byte[] b = new byte[list.size()];
         IntStream.range(0, list.size()).forEach(i -> b[i] = list.get(i));

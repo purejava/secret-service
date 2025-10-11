@@ -1,9 +1,15 @@
-package org.purejava.secret;
+package org.purejava.secret.impl;
 
 import org.freedesktop.dbus.DBusPath;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.types.Variant;
+import org.purejava.secret.api.ConnectionManager;
+import org.purejava.secret.api.Static;
+import org.purejava.secret.api.Util;
+import org.purejava.secret.api.handlers.CollectionChangedHandler;
+import org.purejava.secret.api.handlers.CollectionCreatedHandler;
+import org.purejava.secret.api.handlers.CollectionDeletedHandler;
 import org.purejava.secret.freedesktop.dbus.handlers.Messaging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class Service extends Messaging implements org.purejava.secret.interfaces.Service {
+public abstract class Service extends Messaging implements org.purejava.secret.interfaces.Service {
 
     private static final Logger LOG = LoggerFactory.getLogger(Service.class);
     private static final String SERVICE_NOT_AVAILABLE = "Secret Service not available on DBus";
@@ -22,7 +28,7 @@ public class Service extends Messaging implements org.purejava.secret.interfaces
     private final List<CollectionCreatedHandler> collectionCreatedHandlers = new CopyOnWriteArrayList<>();
     private final List<CollectionChangedHandler> collectionChangedHandlers = new CopyOnWriteArrayList<>();
     private final List<CollectionDeletedHandler> collectionDeletedHandlers = new CopyOnWriteArrayList<>();
-    private org.purejava.secret.interfaces.Service service = null;
+    protected org.purejava.secret.interfaces.Service service = null;
 
     static {
         connection = ConnectionManager.getConnection();

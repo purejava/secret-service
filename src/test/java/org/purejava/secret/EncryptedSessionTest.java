@@ -2,6 +2,7 @@ package org.purejava.secret;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.purejava.secret.api.EncryptedSession;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;

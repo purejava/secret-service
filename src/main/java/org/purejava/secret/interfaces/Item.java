@@ -4,7 +4,7 @@ import org.freedesktop.dbus.DBusPath;
 import org.freedesktop.dbus.annotations.DBusInterfaceName;
 import org.freedesktop.dbus.interfaces.DBusInterface;
 import org.freedesktop.dbus.types.UInt64;
-import org.purejava.secret.Secret;
+import org.purejava.secret.impl.Secret;
 
 import java.util.Map;
 

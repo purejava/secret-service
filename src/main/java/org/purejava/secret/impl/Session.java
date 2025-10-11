@@ -1,7 +1,9 @@
-package org.purejava.secret;
+package org.purejava.secret.impl;
 
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.exceptions.DBusException;
+import org.purejava.secret.api.ConnectionManager;
+import org.purejava.secret.api.Static;
 import org.purejava.secret.freedesktop.dbus.handlers.Messaging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,8 +1,10 @@
-package org.purejava.secret;
+package org.purejava.secret.api;
 
 import at.favre.lib.hkdf.HKDF;
 import org.freedesktop.dbus.DBusPath;
 import org.freedesktop.dbus.types.Variant;
+import org.purejava.secret.impl.Pair;
+import org.purejava.secret.impl.Secret;
 
 import javax.crypto.*;
 import javax.crypto.interfaces.DHPublicKey;
@@ -72,7 +74,7 @@ public class EncryptedSession {
         BigInteger ya = ((DHPublicKey) publicKey).getY();
 
         // open session with "Client DH pub key as an array of bytes" without prime or generator
-        Pair<Variant<ArrayList<Byte>>, DBusPath> osResponse = service.OpenSession(
+        Pair<Variant<ArrayList<Byte>>, DBusPath> osResponse = service.openSession(
                 Algorithm.DH_IETF1024_SHA256_AES128_CBC_PKCS7, new Variant<>(ya.toByteArray()));
 
         // transform peer's raw Y to a public key

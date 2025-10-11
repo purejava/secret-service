@@ -6,8 +6,8 @@ import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.interfaces.DBusInterface;
 import org.freedesktop.dbus.messages.DBusSignal;
 import org.freedesktop.dbus.types.Variant;
-import org.purejava.secret.Pair;
-import org.purejava.secret.Secret;
+import org.purejava.secret.impl.Pair;
+import org.purejava.secret.impl.Secret;
 
 import java.util.ArrayList;
 import java.util.List;

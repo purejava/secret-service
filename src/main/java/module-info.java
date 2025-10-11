@@ -4,7 +4,7 @@ module org.purejava.secret {
     requires org.slf4j;
     requires at.favre.lib.hkdf;
 
-    exports org.purejava.secret;
     exports org.purejava.secret.freedesktop.dbus.handlers;
-    exports org.purejava.secret.interfaces;
+    exports org.purejava.secret.api.handlers;
+    exports org.purejava.secret.api;
 }

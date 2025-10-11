@@ -1,4 +1,4 @@
-package org.purejava.secret;
+package org.purejava.secret.api;
 
 public class Static {
     public static class Service {
