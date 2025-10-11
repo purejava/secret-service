@@ -16,7 +16,7 @@ public class ServiceTest {
     @DisplayName("List collection(s)")
     void listCollections() {
         Service service = new Service();
-        var collections = service.collections();
+        var collections = service.getCollections();
         List<String> paths = collections.stream()
                 .map(DBusPath::getPath)
                 .toList();

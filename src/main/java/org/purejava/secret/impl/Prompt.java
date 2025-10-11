@@ -1,5 +1,6 @@
 package org.purejava.secret.impl;
 
+import org.freedesktop.dbus.DBusPath;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.purejava.secret.api.ConnectionManager;
@@ -13,24 +14,24 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class Prompt extends Messaging implements org.purejava.secret.interfaces.Prompt {
+public abstract class Prompt extends Messaging implements org.purejava.secret.interfaces.Prompt {
 
     private static final Logger LOG = LoggerFactory.getLogger(Prompt.class);
     private static final String PROMPT_NOT_AVAILABLE = "Prompt not available on DBus";
     private static final DBusConnection connection;
 
     private final List<CompletedHandler> completedHandlers = new CopyOnWriteArrayList<>();
-    private org.purejava.secret.interfaces.Prompt prompt = null;
+    protected org.purejava.secret.interfaces.Prompt prompt = null;
 
     static {
         connection = ConnectionManager.getConnection();
     }
 
-    public Prompt() {
-        super(connection, Static.Service.SECRETS, Static.DBusPath.PROMPT, Static.Interfaces.PROMPT);
+    public Prompt(DBusPath path) {
+        super(connection, Static.Service.SECRETS, path.getPath(), Static.Interfaces.PROMPT);
         if (null != connection) {
             try {
-                this.prompt = connection.getRemoteObject(Static.Service.SECRETS, Static.DBusPath.PROMPT, org.purejava.secret.interfaces.Prompt.class);
+                this.prompt = connection.getRemoteObject(Static.Service.SECRETS, path.getPath(), org.purejava.secret.interfaces.Prompt.class);
                 connection.addSigHandler(org.purejava.secret.interfaces.Prompt.Completed.class, this::notifyOnCompleted);
             } catch (DBusException e) {
                 LOG.error(e.toString(), e.getCause());
@@ -50,7 +51,7 @@ public class Prompt extends Messaging implements org.purejava.secret.interfaces.
      * @param window_id Platform specific window handle to use for showing the prompt.
      */
     @Override
-    public void prompt(String window_id) {
+    public void Prompt(String window_id) {
         if (isUnusable()) {
             LOG.error(PROMPT_NOT_AVAILABLE);
             return;
@@ -59,19 +60,19 @@ public class Prompt extends Messaging implements org.purejava.secret.interfaces.
             LOG.error("Cannot prompt as required window_id is missing");
             return;
         }
-        prompt.prompt(window_id);
+        prompt.Prompt(window_id);
     }
 
     /**
      * Dismiss the prompt.
      */
     @Override
-    public void dismiss() {
+    public void Dismiss() {
         if (isUnusable()) {
             LOG.error(PROMPT_NOT_AVAILABLE);
             return;
         }
-        prompt.dismiss();
+        prompt.Dismiss();
     }
 
     /**

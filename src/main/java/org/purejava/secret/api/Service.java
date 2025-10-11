@@ -7,19 +7,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Open a unique session for the caller application.
- *
- * @param algorithm The algorithm the caller wishes to use.
- * @param input     Input arguments for the algorithm.
- * @return Pair&lt;output, result&gt;<br>
- * <br>
- * output   &mdash; Output of the session algorithm negotiation.<br>
- * <br>
- * result   &mdash; The object path of the session, if session was created.<br>
- */
 public class Service extends org.purejava.secret.impl.Service {
 
+    /**
+     * Open a unique session for the caller application.
+     *
+     * @param algorithm The algorithm the caller wishes to use.
+     * @param input     Input arguments for the algorithm.
+     * @return Pair&lt;output, result&gt;<br>
+     * <br>
+     * output   &mdash; Output of the session algorithm negotiation.<br>
+     * <br>
+     * result   &mdash; The object path of the session, if session was created.<br>
+     */
     public Pair<Variant<ArrayList<Byte>>, DBusPath> openSession(String algorithm, Variant<?> input) {
         return service.OpenSession(algorithm, input);
     }
@@ -139,7 +139,7 @@ public class Service extends org.purejava.secret.impl.Service {
      *
      * @return A list of present collections.
      */
-    public List<DBusPath> collections() {
+    public List<DBusPath> getCollections() {
         return Collections();
     }
 }

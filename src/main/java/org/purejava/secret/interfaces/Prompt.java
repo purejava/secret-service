@@ -33,11 +33,11 @@ public interface Prompt extends DBusInterface {
      *
      * @param window_id     Platform specific window handle to use for showing the prompt.
      */
-    void prompt(String window_id);
+    void Prompt(String window_id);
 
     /**
      * Dismiss the prompt.
      */
-    void dismiss();
+    void Dismiss();
 
 }
