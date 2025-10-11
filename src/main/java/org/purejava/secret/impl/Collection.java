@@ -6,6 +6,8 @@ import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.types.UInt64;
 import org.freedesktop.dbus.types.Variant;
 import org.purejava.secret.api.ConnectionManager;
+import org.purejava.secret.api.Pair;
+import org.purejava.secret.api.Secret;
 import org.purejava.secret.api.Static;
 import org.purejava.secret.api.handlers.ItemChangedHandler;
 import org.purejava.secret.api.handlers.ItemCreatedHandler;

@@ -1,4 +1,4 @@
-package org.purejava.secret.impl;
+package org.purejava.secret.api;
 
 import org.freedesktop.dbus.Tuple;
 import org.freedesktop.dbus.annotations.Position;

@@ -2,8 +2,6 @@ package org.purejava.secret.api;
 
 import org.freedesktop.dbus.DBusPath;
 import org.freedesktop.dbus.types.Variant;
-import org.purejava.secret.impl.Pair;
-import org.purejava.secret.impl.Secret;
 
 import java.util.ArrayList;
 import java.util.List;

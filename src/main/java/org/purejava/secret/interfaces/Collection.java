@@ -7,8 +7,8 @@ import org.freedesktop.dbus.interfaces.DBusInterface;
 import org.freedesktop.dbus.messages.DBusSignal;
 import org.freedesktop.dbus.types.UInt64;
 import org.freedesktop.dbus.types.Variant;
-import org.purejava.secret.impl.Pair;
-import org.purejava.secret.impl.Secret;
+import org.purejava.secret.api.Pair;
+import org.purejava.secret.api.Secret;
 
 import java.util.List;
 import java.util.Map;
