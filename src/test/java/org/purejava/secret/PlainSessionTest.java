@@ -18,12 +18,21 @@ public class PlainSessionTest {
     @DisplayName("Establish a plain session")
     void establishPlainSession() {
         Service service = new Service();
+        byte[] bl;
         var response = service.openSession(EncryptedSession.Algorithm.PLAIN, new Variant<>(""));
-        ArrayList<Byte> list = response.a.getValue();
-        byte[] b = new byte[list.size()];
-        IntStream.range(0, list.size()).forEach(i -> b[i] = list.get(i));
+        Variant<?> reaponsea = response.a;
+        Object value = reaponsea.getValue();
+        if (value instanceof ArrayList) {
+            ArrayList<Byte> list = response.a.getValue();
+            bl = new byte[list.size()];
+            IntStream.range(0, list.size()).forEach(i -> bl[i] = list.get(i));
+        } else if (value instanceof String) {
+            bl = ((String) value).getBytes();
+        } else {
+            throw new IllegalStateException("Dbus returned unexpected result for openSession method call: " + value.getClass().getName());
+        }
         DBusPath session = response.b;
-        assertEquals(0, b.length);
+        assertEquals(0, bl.length);
         assertFalse(session.getPath().isEmpty());
     }
 }
