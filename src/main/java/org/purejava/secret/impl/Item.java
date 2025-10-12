@@ -15,7 +15,7 @@ import java.util.Map;
 
 import static org.purejava.secret.api.Static.DBusPath.COLLECTION;
 
-public class Item extends Messaging implements org.purejava.secret.interfaces.Item {
+public abstract class Item extends Messaging implements org.purejava.secret.interfaces.Item {
 
     private static final Logger LOG = LoggerFactory.getLogger(Item.class);
     private static final String ITEM_NOT_AVAILABLE = "Item not available on DBus";
@@ -23,7 +23,7 @@ public class Item extends Messaging implements org.purejava.secret.interfaces.It
 
     private final String collection;
     private final String item_id;
-    private org.purejava.secret.interfaces.Item item = null;
+    protected org.purejava.secret.interfaces.Item item = null;
 
     static {
         connection = ConnectionManager.getConnection();
@@ -54,9 +54,9 @@ public class Item extends Messaging implements org.purejava.secret.interfaces.It
      * @return Prompt   &mdash; A prompt dbuspath, or the special value '/' if no prompt is necessary.
      */
     @Override
-    public DBusPath delete() {
+    public DBusPath Delete() {
         if (isUsable()) {
-            return item.delete();
+            return item.Delete();
         }
         LOG.error(ITEM_NOT_AVAILABLE);
         return null;
@@ -69,7 +69,7 @@ public class Item extends Messaging implements org.purejava.secret.interfaces.It
      * @return secret   &mdash; The secret retrieved.
      */
     @Override
-    public Secret getSecret(DBusPath session) {
+    public Secret GetSecret(DBusPath session) {
         if (!isUsable()) {
             LOG.error(ITEM_NOT_AVAILABLE);
             return null;
@@ -78,7 +78,7 @@ public class Item extends Messaging implements org.purejava.secret.interfaces.It
             LOG.error("Cannot getSecret as required session is missing");
             return null;
         }
-        return item.getSecret(session);
+        return item.GetSecret(session);
     }
 
     /**
@@ -87,7 +87,7 @@ public class Item extends Messaging implements org.purejava.secret.interfaces.It
      * @param secret The secret to set, encoded for the included session.
      */
     @Override
-    public void setSecret(Secret secret) {
+    public void SetSecret(Secret secret) {
         if (!isUsable()) {
             LOG.error(ITEM_NOT_AVAILABLE);
             return;
@@ -96,7 +96,7 @@ public class Item extends Messaging implements org.purejava.secret.interfaces.It
             LOG.error("Cannot setSecret as required secret is missing");
             return;
         }
-        item.setSecret(secret);
+        item.SetSecret(secret);
     }
 
     /**
@@ -105,7 +105,7 @@ public class Item extends Messaging implements org.purejava.secret.interfaces.It
      * @return Whether the item is locked and requires authentication, or not.
      */
     @Override
-    public boolean locked() {
+    public boolean Locked() {
         if (!isUsable()) {
             LOG.error(ITEM_NOT_AVAILABLE);
             return true;
@@ -120,7 +120,7 @@ public class Item extends Messaging implements org.purejava.secret.interfaces.It
      * @return The attributes of the item.
      */
     @Override
-    public Map<String, String> attributes() {
+    public Map<String, String> Attributes() {
         if (!isUsable()) {
             LOG.error(ITEM_NOT_AVAILABLE);
             return null;
@@ -135,7 +135,7 @@ public class Item extends Messaging implements org.purejava.secret.interfaces.It
      * @return The displayable label of this collection.
      */
     @Override
-    public String label() {
+    public String Label() {
         if (!isUsable()) {
             LOG.error(ITEM_NOT_AVAILABLE);
             return null;
@@ -150,7 +150,7 @@ public class Item extends Messaging implements org.purejava.secret.interfaces.It
      * @return The unix time when the item was created.
      */
     @Override
-    public UInt64 created() {
+    public UInt64 Created() {
         if (!isUsable()) {
             LOG.error(ITEM_NOT_AVAILABLE);
             return null;
@@ -160,38 +160,18 @@ public class Item extends Messaging implements org.purejava.secret.interfaces.It
     }
 
     /**
-     * Read-only property "Created"
-     *
-     * @return The unix time when the item was created.
-     */
-    public Long getCreated() {
-        var c = created();
-        return null == c ? null : c.longValue();
-    }
-
-    /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      *
      * @return The unix time when the item was last modified.
      */
     @Override
-    public UInt64 modified() {
+    public UInt64 Modified() {
         if (!isUsable()) {
             LOG.error(ITEM_NOT_AVAILABLE);
             return null;
         }
         var response = getProperty("Modified");
         return null == response ? null : (UInt64) response.getValue();
-    }
-
-    /**
-     * Read-only property "Modified"
-     *
-     * @return The unix time when the item was last modified.
-     */
-    public Long getModified() {
-        var m = modified();
-        return null == m ? null : m.longValue();
     }
 
     /**

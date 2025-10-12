@@ -24,8 +24,8 @@ public class Util {
             throw new IllegalArgumentException("Invalid DBusPath was provided for Prompt: " + path.getPath());
         }
         AtomicReference<Variant<?>> resultRef = new AtomicReference<>();
-        CountDownLatch latch = new CountDownLatch(1);
-        Prompt prompt = new Prompt(path);
+        var latch = new CountDownLatch(1);
+        var prompt = new Prompt(path);
         prompt.addCompletedHandler((dismissed, result) -> {
             resultRef.set(result);
             latch.countDown();

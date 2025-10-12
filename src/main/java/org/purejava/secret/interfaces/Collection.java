@@ -70,7 +70,7 @@ public interface Collection extends DBusInterface {
      * @return prompt &mdash; A prompt to delete the collection, or the special value '/' when no prompt is necessary.
      * @see DBusPath
      */
-    DBusPath delete();
+    DBusPath Delete();
 
     /**
      * Search for items in this collection matching the lookup attributes.
@@ -79,7 +79,7 @@ public interface Collection extends DBusInterface {
      * @return results     &mdash; Items that matched the attributes.
      * @see DBusPath
      */
-    List<DBusPath> searchItems(Map<String, String> attributes);
+    List<DBusPath> SearchItems(Map<String, String> attributes);
 
     /**
      * Create an item with the given attributes, secret and label. If replace is set, then it replaces an item already
@@ -118,36 +118,36 @@ public interface Collection extends DBusInterface {
      * prompt               &mdash; A prompt object, or the special value '/' if no prompt is necessary.<br>
      * @see DBusPath
      */
-    Pair<DBusPath, DBusPath> createItem(Map<String, Variant<?>> properties, Secret secret, boolean replace);
+    Pair<DBusPath, DBusPath> CreateItem(Map<String, Variant<?>> properties, Secret secret, boolean replace);
 
     /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      * @return  Items in this collection.
      */
-    List<DBusPath> items();
+    List<DBusPath> Items();
 
     /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      * @return  The displayable label of this collection.
      */
-    String label();
+    String Label();
 
     /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      * @return  Whether the collection is locked and must be authenticated by the client application.
      */
-    boolean locked();
+    boolean Locked();
 
     /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      * @return  The unix time when the collection was created.
      */
-    UInt64 created();
+    UInt64 Created();
 
     /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      * @return  The unix time when the collection was last modified.
      */
-    UInt64 modified();
+    UInt64 Modified();
 
 }

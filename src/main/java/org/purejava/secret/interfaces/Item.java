@@ -16,7 +16,7 @@ public interface Item extends DBusInterface {
      *
      * @return Prompt   &mdash; A prompt dbuspath, or the special value '/' if no prompt is necessary.
      */
-    DBusPath delete();
+    DBusPath Delete();
 
     /**
      * Retrieve the secret for this item.
@@ -24,43 +24,43 @@ public interface Item extends DBusInterface {
      * @param session   The session to use to encode the secret.
      * @return secret   &mdash; The secret retrieved.
      */
-    Secret getSecret(DBusPath session);
+    Secret GetSecret(DBusPath session);
 
     /**
      * Set the secret for this item.
      *
      * @param secret The secret to set, encoded for the included session.
      */
-    void setSecret(Secret secret);
+    void SetSecret(Secret secret);
 
     /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      * @return Whether the item is locked and requires authentication, or not.
      */
-    boolean locked();
+    boolean Locked();
 
     /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      * @return The attributes of the item.
      */
-    Map<String, String> attributes();
+    Map<String, String> Attributes();
 
     /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      * @return The displayable label of this collection.
      */
-    String label();
+    String Label();
 
     /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      * @return The unix time when the item was created.
      */
-    UInt64 created();
+    UInt64 Created();
 
     /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      * @return The unix time when the item was last modified.
      */
-    UInt64 modified();
+    UInt64 Modified();
 
 }

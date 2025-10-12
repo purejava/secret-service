@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class Collection extends Messaging implements org.purejava.secret.interfaces.Collection {
+public abstract class Collection extends Messaging implements org.purejava.secret.interfaces.Collection {
 
     private static final Logger LOG = LoggerFactory.getLogger(Collection.class);
     private static final String COLLECTION_NOT_AVAILABLE = "Collection not available on DBus";
@@ -30,7 +30,7 @@ public class Collection extends Messaging implements org.purejava.secret.interfa
     private final List<ItemCreatedHandler> itemCreatedHandlers = new CopyOnWriteArrayList<>();
     private final List<ItemChangedHandler> itemChangedHandlers = new CopyOnWriteArrayList<>();
     private final List<ItemDeletedHandler> itemDeletedHandlers = new CopyOnWriteArrayList<>();
-    private org.purejava.secret.interfaces.Collection collection = null;
+    protected org.purejava.secret.interfaces.Collection collection = null;
 
     static {
         connection = ConnectionManager.getConnection();
@@ -81,9 +81,9 @@ public class Collection extends Messaging implements org.purejava.secret.interfa
      * @see DBusPath
      */
     @Override
-    public DBusPath delete() {
+    public DBusPath Delete() {
         if (isUsable()) {
-            return collection.delete();
+            return collection.Delete();
         }
         LOG.error(COLLECTION_NOT_AVAILABLE);
         return null;
@@ -97,9 +97,9 @@ public class Collection extends Messaging implements org.purejava.secret.interfa
      * @see DBusPath
      */
     @Override
-    public List<DBusPath> searchItems(Map<String, String> attributes) {
+    public List<DBusPath> SearchItems(Map<String, String> attributes) {
         if (isUsable()) {
-            return collection.searchItems(attributes);
+            return collection.SearchItems(attributes);
         }
         LOG.error(COLLECTION_NOT_AVAILABLE);
         return null;
@@ -142,7 +142,7 @@ public class Collection extends Messaging implements org.purejava.secret.interfa
      * @see DBusPath
      */
     @Override
-    public Pair<DBusPath, DBusPath> createItem(Map<String, Variant<?>> properties, Secret secret, boolean replace) {
+    public Pair<DBusPath, DBusPath> CreateItem(Map<String, Variant<?>> properties, Secret secret, boolean replace) {
         if (!isUsable()) {
             LOG.error(COLLECTION_NOT_AVAILABLE);
             return null;
@@ -151,7 +151,7 @@ public class Collection extends Messaging implements org.purejava.secret.interfa
             LOG.error("Cannot createItem as required secret is missing");
             return null;
         }
-        return collection.createItem(properties, secret, replace);
+        return collection.CreateItem(properties, secret, replace);
     }
 
     /**
@@ -160,7 +160,7 @@ public class Collection extends Messaging implements org.purejava.secret.interfa
      * @return Items in this collection.
      */
     @Override
-    public List<DBusPath> items() {
+    public List<DBusPath> Items() {
         if (!isUsable()) {
             LOG.error(COLLECTION_NOT_AVAILABLE);
             return null;
@@ -175,7 +175,7 @@ public class Collection extends Messaging implements org.purejava.secret.interfa
      * @return The displayable label of this collection.
      */
     @Override
-    public String label() {
+    public String Label() {
         if (!isUsable()) {
             LOG.error(COLLECTION_NOT_AVAILABLE);
             return null;
@@ -190,7 +190,7 @@ public class Collection extends Messaging implements org.purejava.secret.interfa
      * @return Whether the collection is locked and must be authenticated by the client application.
      */
     @Override
-    public boolean locked() {
+    public boolean Locked() {
         if (!isUsable()) {
             LOG.error(COLLECTION_NOT_AVAILABLE);
             return true;
@@ -205,7 +205,7 @@ public class Collection extends Messaging implements org.purejava.secret.interfa
      * @return The unix time when the collection was created.
      */
     @Override
-    public UInt64 created() {
+    public UInt64 Created() {
         if (!isUsable()) {
             LOG.error(COLLECTION_NOT_AVAILABLE);
             return null;
@@ -215,38 +215,18 @@ public class Collection extends Messaging implements org.purejava.secret.interfa
     }
 
     /**
-     * Read-only property "Created"
-     *
-     * @return The unix time when the collection was created.
-     */
-    public Long getCreated() {
-        var c = created();
-        return null == c ? null : c.longValue();
-    }
-
-    /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      *
      * @return The unix time when the collection was last modified.
      */
     @Override
-    public UInt64 modified() {
+    public UInt64 Modified() {
         if (!isUsable()) {
             LOG.error(COLLECTION_NOT_AVAILABLE);
             return null;
         }
         var response = getProperty("Modified");
         return null == response ? null : (UInt64) response.getValue();
-    }
-
-    /**
-     * Read-only property "Modified"
-     *
-     * @return The unix time when the collection was last modified.
-     */
-    public Long getModified() {
-        var m = modified();
-        return null == m ? null : m.longValue();
     }
 
     /**
