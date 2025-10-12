@@ -51,7 +51,7 @@ public abstract class Collection extends Messaging implements org.purejava.secre
     }
 
     public Collection(DBusPath path) {
-        super(connection, Static.Service.SECRETS, path.getPath(), Static.Service.SECRETS);
+        super(connection, Static.Service.SECRETS, path.getPath(), Static.Interfaces.COLLECTION);
         if (null != connection) {
             try {
                 this.collection = connection.getRemoteObject(Static.Service.SECRETS, path, org.purejava.secret.interfaces.Collection.class);
