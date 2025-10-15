@@ -29,7 +29,7 @@ public abstract class Service extends Messaging implements org.purejava.secret.i
     protected org.purejava.secret.interfaces.Service service = null;
 
     static {
-        connection = ConnectionManager.getConnection();
+        connection = ConnectionManager.getInstance().getConnection();
     }
 
     public Service() {

@@ -39,7 +39,6 @@ public class ServiceTest {
     @Order(1)
     @DisplayName("Create collection (dismissed)")
     void createCollectionCanceled() {
-        var myCollection = new Collection();
         var props = Collection.createProperties("TESTmyCollection-dismissed");
         var pair = context.service.createCollection(props, "");
         var path = pair.a.getPath();

@@ -16,7 +16,7 @@ public class Session extends Messaging implements org.purejava.secret.interfaces
     private org.purejava.secret.interfaces.Session session = null;
 
     static {
-        connection = ConnectionManager.getConnection();
+        connection = ConnectionManager.getInstance().getConnection();
     }
 
     public Session() {

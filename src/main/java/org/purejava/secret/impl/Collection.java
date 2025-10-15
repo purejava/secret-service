@@ -33,7 +33,7 @@ public abstract class Collection extends Messaging implements org.purejava.secre
     protected org.purejava.secret.interfaces.Collection collection = null;
 
     static {
-        connection = ConnectionManager.getConnection();
+        connection = ConnectionManager.getInstance().getConnection();
     }
 
     public Collection() {

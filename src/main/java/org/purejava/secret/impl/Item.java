@@ -26,7 +26,7 @@ public abstract class Item extends Messaging implements org.purejava.secret.inte
     protected org.purejava.secret.interfaces.Item item = null;
 
     static {
-        connection = ConnectionManager.getConnection();
+        connection = ConnectionManager.getInstance().getConnection();
     }
 
     public Item(String collection, String item_id) {

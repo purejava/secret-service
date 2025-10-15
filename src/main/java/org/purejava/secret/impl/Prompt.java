@@ -24,7 +24,7 @@ public abstract class Prompt extends Messaging implements org.purejava.secret.in
     protected org.purejava.secret.interfaces.Prompt prompt = null;
 
     static {
-        connection = ConnectionManager.getConnection();
+        connection = ConnectionManager.getInstance().getConnection();
     }
 
     public Prompt(DBusPath path) {

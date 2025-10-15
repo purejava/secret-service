@@ -9,13 +9,22 @@ import org.slf4j.LoggerFactory;
 
 public class ConnectionManager {
     private static final Logger LOG = LoggerFactory.getLogger(ConnectionManager.class);
+    private static ConnectionManager instance;
+    private DBusConnection connection;
 
-    private static class Holder {
-        static final DBusConnection INSTANCE = createConnection();
+    private ConnectionManager() {
+        this.connection = createConnection();
     }
 
-    public static DBusConnection getConnection() {
-        return Holder.INSTANCE;
+    public static synchronized ConnectionManager getInstance() {
+        if (instance == null) {
+            instance = new ConnectionManager();
+        }
+        return instance;
+    }
+
+    public DBusConnection getConnection() {
+        return connection;
     }
 
     private static DBusConnection createConnection() {
@@ -30,4 +39,3 @@ public class ConnectionManager {
         }
     }
 }
-
