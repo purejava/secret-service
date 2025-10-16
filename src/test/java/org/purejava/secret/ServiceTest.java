@@ -64,6 +64,10 @@ public class ServiceTest {
         var myCollection = new Collection(new DBusPath(Static.DBusPath.COLLECTION + "/" + NAME));
         var label = myCollection.getLabel();
         assertEquals(NAME, label);
+        String newLabel = "testlabel";
+        myCollection.setLabel(newLabel);
+        label = myCollection.getLabel();
+        assertEquals("testlabel", label);
         var dBusPath = myCollection.delete();
         assertEquals("/", dBusPath.getPath());
     }

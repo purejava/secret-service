@@ -174,6 +174,18 @@ public class Collection {
         return properties.Get(Static.Interfaces.COLLECTION, "Label");
     }
 
+    public void setLabel(String value) {
+        if (!isUsable()) {
+            LOG.error(COLLECTION_NOT_AVAILABLE);
+            return;
+        }
+        if (null == value) {
+            LOG.error("Cannot setLabel as required value is missing");
+            return;
+        }
+        properties.Set(Static.Interfaces.COLLECTION, "Label", new Variant<>(value));
+    }
+
     /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      *
