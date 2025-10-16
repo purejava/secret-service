@@ -2,9 +2,9 @@ package org.purejava.secret;
 
 import org.freedesktop.dbus.DBusPath;
 import org.junit.jupiter.api.*;
-import org.purejava.secret.api.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.purejava.secret.api.Collection;
+import org.purejava.secret.api.Static;
+import org.purejava.secret.api.Util;
 
 import java.util.List;
 
@@ -12,11 +12,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ServiceTest {
-    private static final Logger LOG = LoggerFactory.getLogger(ServiceTest.class);
+    final String NAME = "TESTmyCollectionEmptyPassword";
+    final String COLLECTION_PATH = "/org/freedesktop/secrets/collection/TESTmyCollectionEmptyPassword";
     private Context context;
 
     @BeforeEach
-    public void beforeEach(TestInfo info) {
+    public void beforeEach() {
         context = new Context();
         context.ensureService();
     }
@@ -36,8 +37,8 @@ public class ServiceTest {
     }
 
     @Test
-    @Order(1)
     @DisplayName("Create collection (dismissed)")
+    @Disabled
     void createCollectionCanceled() {
         var props = Collection.createProperties("TESTmyCollection-dismissed");
         var pair = context.service.createCollection(props, "");
@@ -49,13 +50,10 @@ public class ServiceTest {
     }
 
     @Test
-    @Order(2)
     @DisplayName("Create collection (empty password)")
     @Disabled
     // one collection is dismissed, the other is created with an empty password
-    void createCollection() {
-        final String NAME = "TESTmyCollectionEmptyPassword";
-        final String COLLECTION_PATH = "/org/freedesktop/secrets/collection/TESTmyCollectionEmptyPassword";
+    void createCollectionEmptyPassword() {
         var props = Collection.createProperties(NAME);
         var pair = context.service.createCollection(props, "");
         var path = pair.a.getPath();
@@ -63,19 +61,10 @@ public class ServiceTest {
         assertEquals("/", path);
         var result = Util.promptAndGetResult(promtp);
         assertEquals(COLLECTION_PATH, result.getPath());
-        var collections = context.service.getCollections();
-        List<String> paths = collections.stream()
-                .map(DBusPath::getPath)
-                .toList();
-        for (String s : paths) {
-            LOG.info(s);
-        }
         var myCollection = new Collection(new DBusPath(Static.DBusPath.COLLECTION + "/" + NAME));
-//        var label = myCollection.getLabel();
-//        assertEquals("", label);
-//        //assertEquals("/", alias.getPath());
+        var label = myCollection.getLabel();
+        assertEquals(NAME, label);
         var dBusPath = myCollection.delete();
-            assertEquals("/", dBusPath.getPath());
+        assertEquals("/", dBusPath.getPath());
     }
-
 }

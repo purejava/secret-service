@@ -6,6 +6,7 @@ plugins {
     id("com.github.breadmoirai.github-release") version "2.5.2"
     id("maven-publish")
     id("signing")
+    id("com.adarshr.test-logger") version "4.0.0"
 }
 
 group = "org.purejava"

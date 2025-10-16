@@ -1,26 +1,74 @@
 package org.purejava.secret.api;
 
 import org.freedesktop.dbus.DBusPath;
+import org.freedesktop.dbus.connections.impl.DBusConnection;
+import org.freedesktop.dbus.exceptions.DBusException;
+import org.freedesktop.dbus.interfaces.Properties;
+import org.freedesktop.dbus.types.UInt64;
 import org.freedesktop.dbus.types.Variant;
+import org.purejava.secret.api.handlers.ItemChangedHandler;
+import org.purejava.secret.api.handlers.ItemCreatedHandler;
+import org.purejava.secret.api.handlers.ItemDeletedHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-public class Collection extends org.purejava.secret.impl.Collection {
-    static String LABEL = "org.freedesktop.Secret.Collection.Label";
+public class Collection {
 
-    public Collection() {
-        super();
+    private static final Logger LOG = LoggerFactory.getLogger(Collection.class);
+    private static final String LABEL = "org.freedesktop.Secret.Collection.Label";
+    private static final String COLLECTION_NOT_AVAILABLE = "Collection not available on DBus";
+    private static final DBusConnection connection;
+
+    private final List<ItemCreatedHandler> itemCreatedHandlers = new CopyOnWriteArrayList<>();
+    private final List<ItemChangedHandler> itemChangedHandlers = new CopyOnWriteArrayList<>();
+    private final List<ItemDeletedHandler> itemDeletedHandlers = new CopyOnWriteArrayList<>();
+    private final DBusPath path;
+    private org.purejava.secret.interfaces.Collection collection = null;
+    private Properties properties = null;
+
+    static {
+        connection = ConnectionManager.getInstance().getConnection();
     }
+
     public Collection(DBusPath path) {
-        super(path);
+        if (null == path) {
+            throw new IllegalArgumentException("DBusPath must not be null");
+        }
+
+        this.path = path;
+
+        try {
+
+            this.collection = Collection.connection.getRemoteObject(Static.Service.SECRETS,
+                    path.getPath(),
+                    org.purejava.secret.interfaces.Collection.class);
+
+            this.properties = Collection.connection.getRemoteObject(Static.Service.SECRETS,
+                    path.getPath(),
+                    Properties.class);
+
+            Collection.connection.addSigHandler(org.purejava.secret.interfaces.Collection.ItemCreated.class, this::notifyOnItemCreated);
+            Collection.connection.addSigHandler(org.purejava.secret.interfaces.Collection.ItemChanged.class, this::notifyOnItemChanged);
+            Collection.connection.addSigHandler(org.purejava.secret.interfaces.Collection.ItemDeleted.class, this::notifyOnItemDeleted);
+
+        } catch (DBusException e) {
+            LOG.error(e.toString(), e.getCause());
+        }
     }
 
     public static Map<String, Variant<?>> createProperties(String label) {
         HashMap<String, Variant<?>> properties = new HashMap<>();
         properties.put(LABEL, new Variant<>(label));
         return properties;
+    }
+
+    private boolean isUsable() {
+        return null != collection;
     }
 
     /**
@@ -30,7 +78,11 @@ public class Collection extends org.purejava.secret.impl.Collection {
      * @see DBusPath
      */
     public DBusPath delete() {
-        return collection.Delete();
+        if (isUsable()) {
+            return collection.Delete();
+        }
+        LOG.error(COLLECTION_NOT_AVAILABLE);
+        return null;
     }
 
     /**
@@ -41,7 +93,11 @@ public class Collection extends org.purejava.secret.impl.Collection {
      * @see DBusPath
      */
     public List<DBusPath> searchItems(Map<String, String> attributes) {
-        return collection.SearchItems(attributes);
+        if (isUsable()) {
+            return collection.SearchItems(attributes);
+        }
+        LOG.error(COLLECTION_NOT_AVAILABLE);
+        return null;
     }
 
     /**
@@ -81,6 +137,14 @@ public class Collection extends org.purejava.secret.impl.Collection {
      * @see DBusPath
      */
     public Pair<DBusPath, DBusPath> createItem(Map<String, Variant<?>> properties, Secret secret, boolean replace) {
+        if (!isUsable()) {
+            LOG.error(COLLECTION_NOT_AVAILABLE);
+            return null;
+        }
+        if (null == secret) {
+            LOG.error("Cannot createItem as required secret is missing");
+            return null;
+        }
         return collection.CreateItem(properties, secret, replace);
     }
 
@@ -90,7 +154,11 @@ public class Collection extends org.purejava.secret.impl.Collection {
      * @return Items in this collection.
      */
     public List<DBusPath> getItems() {
-        return Items();
+        if (!isUsable()) {
+            LOG.error(COLLECTION_NOT_AVAILABLE);
+            return null;
+        }
+        return properties.Get(Static.Interfaces.COLLECTION, "Items");
     }
 
     /**
@@ -99,7 +167,11 @@ public class Collection extends org.purejava.secret.impl.Collection {
      * @return The displayable label of this collection.
      */
     public String getLabel() {
-        return Label();
+        if (!isUsable()) {
+            LOG.error(COLLECTION_NOT_AVAILABLE);
+            return null;
+        }
+        return properties.Get(Static.Interfaces.COLLECTION, "Label");
     }
 
     /**
@@ -108,26 +180,86 @@ public class Collection extends org.purejava.secret.impl.Collection {
      * @return Whether the collection is locked and must be authenticated by the client application.
      */
     public boolean isLocked() {
-        return Locked();
+        if (!isUsable()) {
+            LOG.error(COLLECTION_NOT_AVAILABLE);
+            return true;
+        }
+        return properties.Get(Static.Interfaces.COLLECTION, "Locked");
     }
 
     /**
-     * Read-only property "Created"
+     * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      *
      * @return The unix time when the collection was created.
      */
-    public Long getCreated() {
-        var c = Created();
-        return null == c ? null : c.longValue();
+    public UInt64 getCreated() {
+        if (!isUsable()) {
+            LOG.error(COLLECTION_NOT_AVAILABLE);
+            return null;
+        }
+        return properties.Get(Static.Interfaces.COLLECTION, "Created");
     }
 
     /**
-     * Read-only property "Modified"
+     * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      *
      * @return The unix time when the collection was last modified.
      */
-    public Long getModified() {
-        var m = Modified();
-        return null == m ? null : m.longValue();
+    public UInt64 getModified() {
+        if (!isUsable()) {
+            LOG.error(COLLECTION_NOT_AVAILABLE);
+            return null;
+        }
+        return properties.Get(Static.Interfaces.COLLECTION, "Modified");
+    }
+
+    public String getDBusPath() {
+        return path.getPath();
+    }
+
+    private void notifyOnItemCreated(org.purejava.secret.interfaces.Collection.ItemCreated signal) {
+        if (getDBusPath().equals(signal.item.getPath())) {
+            for (ItemCreatedHandler handler : itemCreatedHandlers) {
+                handler.onItemCreated(signal.item);
+            }
+        }
+    }
+    private void notifyOnItemChanged(org.purejava.secret.interfaces.Collection.ItemChanged signal) {
+        if (getDBusPath().equals(signal.item.getPath())) {
+            for (ItemChangedHandler handler : itemChangedHandlers) {
+                handler.onItemChanged(signal.item);
+            }
+        }
+    }
+    private void notifyOnItemDeleted(org.purejava.secret.interfaces.Collection.ItemDeleted signal) {
+        if (getDBusPath().equals(signal.item.getPath())) {
+            for (ItemDeletedHandler handler : itemDeletedHandlers) {
+                handler.onItemDeleted(signal.item);
+            }
+        }
+    }
+
+    public void addItemCreatedHandler(ItemCreatedHandler handler) {
+        itemCreatedHandlers.add(handler);
+    }
+
+    public void removeItemCreatedHandler(ItemCreatedHandler handler) {
+        itemCreatedHandlers.remove(handler);
+    }
+
+    public void addItemChangedHandler(ItemChangedHandler handler) {
+        itemChangedHandlers.add(handler);
+    }
+
+    public void removeItemChangedHandler(ItemChangedHandler handler) {
+        itemChangedHandlers.remove(handler);
+    }
+
+    public void addItemDeletedHandler(ItemDeletedHandler handler) {
+        itemDeletedHandlers.add(handler);
+    }
+
+    public void removeItemDeletedHandler(ItemDeletedHandler handler) {
+        itemDeletedHandlers.remove(handler);
     }
 }
