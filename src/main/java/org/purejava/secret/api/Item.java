@@ -1,17 +1,52 @@
 package org.purejava.secret.api;
 
 import org.freedesktop.dbus.DBusPath;
+import org.freedesktop.dbus.connections.impl.DBusConnection;
+import org.freedesktop.dbus.exceptions.DBusException;
+import org.freedesktop.dbus.interfaces.Properties;
 import org.freedesktop.dbus.types.Variant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class Item extends org.purejava.secret.impl.Item {
-    static String LABEL = "org.freedesktop.Secret.Item.Label";
-    static String ATTRIBUTES = "org.freedesktop.Secret.Item.Attributes";
+public class Item {
+    private static final Logger LOG = LoggerFactory.getLogger(Item.class);
+    private static final String ITEM_NOT_AVAILABLE = "Item not available on DBus";
+    private static final DBusConnection connection;
 
-    public Item(String collection, String item_id) {
-        super(collection, item_id);
+    private static final String LABEL = "org.freedesktop.Secret.Item.Label";
+    private static final String ATTRIBUTES = "org.freedesktop.Secret.Item.Attributes";
+
+    private final DBusPath path;
+    private org.purejava.secret.interfaces.Item item = null;
+    private Properties properties = null;
+
+    static {
+        connection = ConnectionManager.getInstance().getConnection();
+    }
+
+    public Item(DBusPath path) {
+        if (null == path) {
+            throw new IllegalArgumentException("DBusPath must not be null");
+        }
+
+        this.path = path;
+
+        try {
+
+            this.item = Item.connection.getRemoteObject(Static.Service.SECRETS,
+                    path.getPath(),
+                    org.purejava.secret.interfaces.Item.class);
+
+            this.properties = Item.connection.getRemoteObject(Static.Service.SECRETS,
+                    path.getPath(),
+                    Properties.class);
+
+        } catch (DBusException e) {
+            LOG.error(e.toString(), e.getCause());
+        }
     }
 
     public static Map<String, Variant<?>> createProperties(String label, Map<String, String> attributes) {
@@ -23,13 +58,21 @@ public class Item extends org.purejava.secret.impl.Item {
         return properties;
     }
 
+    private boolean isUsable() {
+        return null != item;
+    }
+
     /**
      * Delete this item.
      *
      * @return Prompt   &mdash; A prompt dbuspath, or the special value '/' if no prompt is necessary.
      */
     public DBusPath delete() {
-        return item.Delete();
+        if (isUsable()) {
+            return item.Delete();
+        }
+        LOG.error(ITEM_NOT_AVAILABLE);
+        return null;
     }
 
     /**
@@ -39,6 +82,14 @@ public class Item extends org.purejava.secret.impl.Item {
      * @return secret   &mdash; The secret retrieved.
      */
     public Secret getSecret(DBusPath session) {
+        if (!isUsable()) {
+            LOG.error(ITEM_NOT_AVAILABLE);
+            return null;
+        }
+        if (null == session) {
+            LOG.error("Cannot getSecret as required session is missing");
+            return null;
+        }
         return item.GetSecret(session);
     }
 
@@ -48,6 +99,14 @@ public class Item extends org.purejava.secret.impl.Item {
      * @param secret The secret to set, encoded for the included session.
      */
     public void setSecret(Secret secret) {
+        if (!isUsable()) {
+            LOG.error(ITEM_NOT_AVAILABLE);
+            return;
+        }
+        if (null == secret) {
+            LOG.error("Cannot setSecret as required secret is missing");
+            return;
+        }
         item.SetSecret(secret);
     }
 
@@ -57,7 +116,11 @@ public class Item extends org.purejava.secret.impl.Item {
      * @return Whether the item is locked and requires authentication, or not.
      */
     public boolean isLocked() {
-        return Locked();
+        if (!isUsable()) {
+            LOG.error(ITEM_NOT_AVAILABLE);
+            return true;
+        }
+        return properties.Get(Static.Interfaces.ITEM, "Locked");
     }
 
     /**
@@ -66,7 +129,11 @@ public class Item extends org.purejava.secret.impl.Item {
      * @return The attributes of the item.
      */
     public Map<String, String> getAttributes() {
-        return Attributes();
+        if (!isUsable()) {
+            LOG.error(ITEM_NOT_AVAILABLE);
+            return null;
+        }
+        return properties.Get(Static.Interfaces.ITEM, "Attributes");
     }
 
     /**
@@ -75,7 +142,11 @@ public class Item extends org.purejava.secret.impl.Item {
      * @return The displayable label of this collection.
      */
     public String getLabel() {
-        return Label();
+        if (!isUsable()) {
+            LOG.error(ITEM_NOT_AVAILABLE);
+            return null;
+        }
+        return properties.Get(Static.Interfaces.ITEM, "Label");
     }
 
     /**
@@ -84,8 +155,11 @@ public class Item extends org.purejava.secret.impl.Item {
      * @return The unix time when the item was created.
      */
     public Long getCreated() {
-        var c = Created();
-        return null == c ? null : c.longValue();
+        if (!isUsable()) {
+            LOG.error(ITEM_NOT_AVAILABLE);
+            return null;
+        }
+        return properties.Get(Static.Interfaces.ITEM, "Created");
     }
 
     /**
@@ -94,7 +168,14 @@ public class Item extends org.purejava.secret.impl.Item {
      * @return The unix time when the item was last modified.
      */
     public Long getModified() {
-        var m = Modified();
-        return null == m ? null : m.longValue();
+        if (!isUsable()) {
+            LOG.error(ITEM_NOT_AVAILABLE);
+            return null;
+        }
+        return properties.Get(Static.Interfaces.ITEM, "Modified");
+    }
+
+    public String getDBusPath() {
+        return path.getPath();
     }
 }

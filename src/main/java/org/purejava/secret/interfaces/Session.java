@@ -9,6 +9,6 @@ public interface Session extends DBusInterface {
     /**
      * Close this session.
      */
-    void close();
+    void Close();
 
 }
