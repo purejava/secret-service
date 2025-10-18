@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Item {
+public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item> {
     private static final Logger LOG = LoggerFactory.getLogger(Item.class);
     private static final String ITEM_NOT_AVAILABLE = "Item not available on DBus";
     private static final DBusConnection connection;
@@ -20,23 +20,19 @@ public class Item {
     private static final String ATTRIBUTES = "org.freedesktop.Secret.Item.Attributes";
 
     private final DBusPath path;
-    private org.purejava.secret.interfaces.Item item = null;
-    private Properties properties = null;
 
     static {
         connection = ConnectionManager.getInstance().getConnection();
     }
 
     public Item(DBusPath path) {
-        if (null == path) {
-            throw new IllegalArgumentException("DBusPath must not be null");
-        }
+        super(Static.Service.SECRETS, path.getPath(), org.purejava.secret.interfaces.Item.class);
 
         this.path = path;
 
         try {
 
-            this.item = Item.connection.getRemoteObject(Static.Service.SECRETS,
+            this.remote = Item.connection.getRemoteObject(Static.Service.SECRETS,
                     path.getPath(),
                     org.purejava.secret.interfaces.Item.class);
 
@@ -49,6 +45,11 @@ public class Item {
         }
     }
 
+    @Override
+    protected String getUnavailableMessage() {
+        return ITEM_NOT_AVAILABLE;
+    }
+
     public static Map<String, Variant<?>> createProperties(String label, Map<String, String> attributes) {
         Map<String, Variant<?>> properties = new HashMap<>();
         properties.put(LABEL, new Variant<>(label));
@@ -58,21 +59,13 @@ public class Item {
         return properties;
     }
 
-    private boolean isUsable() {
-        return null != item;
-    }
-
     /**
      * Delete this item.
      *
      * @return Prompt   &mdash; A prompt dbuspath, or the special value '/' if no prompt is necessary.
      */
     public DBusPath delete() {
-        if (isUsable()) {
-            return item.Delete();
-        }
-        LOG.error(ITEM_NOT_AVAILABLE);
-        return null;
+        return dBusCall("Delete", () -> remote.Delete());
     }
 
     /**
@@ -82,15 +75,11 @@ public class Item {
      * @return secret   &mdash; The secret retrieved.
      */
     public Secret getSecret(DBusPath session) {
-        if (!isUsable()) {
-            LOG.error(ITEM_NOT_AVAILABLE);
-            return null;
-        }
         if (null == session) {
             LOG.error("Cannot getSecret as required session is missing");
             return null;
         }
-        return item.GetSecret(session);
+        return dBusCall("GetSecret", () -> remote.GetSecret(session));
     }
 
     /**
@@ -99,15 +88,14 @@ public class Item {
      * @param secret The secret to set, encoded for the included session.
      */
     public void setSecret(Secret secret) {
-        if (!isUsable()) {
-            LOG.error(ITEM_NOT_AVAILABLE);
-            return;
-        }
         if (null == secret) {
             LOG.error("Cannot setSecret as required secret is missing");
             return;
         }
-        item.SetSecret(secret);
+        dBusCall("SetSecret", () -> {
+            remote.SetSecret(secret);
+            return null;
+        });
     }
 
     /**
@@ -116,11 +104,8 @@ public class Item {
      * @return Whether the item is locked and requires authentication, or not.
      */
     public boolean isLocked() {
-        if (!isUsable()) {
-            LOG.error(ITEM_NOT_AVAILABLE);
-            return true;
-        }
-        return properties.Get(Static.Interfaces.ITEM, "Locked");
+        return dBusCall("Get(Locked)", () ->
+                properties.Get(Static.Interfaces.ITEM, "Locked"));
     }
 
     /**
@@ -129,11 +114,8 @@ public class Item {
      * @return The attributes of the item.
      */
     public Map<String, String> getAttributes() {
-        if (!isUsable()) {
-            LOG.error(ITEM_NOT_AVAILABLE);
-            return null;
-        }
-        return properties.Get(Static.Interfaces.ITEM, "Attributes");
+        return dBusCall("Get(Attributes)", () ->
+                properties.Get(Static.Interfaces.ITEM, "Attributes"));
     }
 
     /**
@@ -142,11 +124,8 @@ public class Item {
      * @return The displayable label of this collection.
      */
     public String getLabel() {
-        if (!isUsable()) {
-            LOG.error(ITEM_NOT_AVAILABLE);
-            return null;
-        }
-        return properties.Get(Static.Interfaces.ITEM, "Label");
+        return dBusCall("Get(Label)", () ->
+                properties.Get(Static.Interfaces.ITEM, "Label"));
     }
 
     /**
@@ -155,11 +134,8 @@ public class Item {
      * @return The unix time when the item was created.
      */
     public Long getCreated() {
-        if (!isUsable()) {
-            LOG.error(ITEM_NOT_AVAILABLE);
-            return null;
-        }
-        return properties.Get(Static.Interfaces.ITEM, "Created");
+        return dBusCall("Get(Created)", () ->
+                properties.Get(Static.Interfaces.ITEM, "Created"));
     }
 
     /**
@@ -168,11 +144,8 @@ public class Item {
      * @return The unix time when the item was last modified.
      */
     public Long getModified() {
-        if (!isUsable()) {
-            LOG.error(ITEM_NOT_AVAILABLE);
-            return null;
-        }
-        return properties.Get(Static.Interfaces.ITEM, "Modified");
+        return dBusCall("Get(Modified)", () ->
+                properties.Get(Static.Interfaces.ITEM, "Modified"));
     }
 
     public String getDBusPath() {

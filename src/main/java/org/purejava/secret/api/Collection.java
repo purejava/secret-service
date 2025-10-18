@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class Collection {
+public class Collection extends DBusLoggingHandler<org.purejava.secret.interfaces.Collection> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Collection.class);
     private static final String LABEL = "org.freedesktop.Secret.Collection.Label";
@@ -28,23 +28,19 @@ public class Collection {
     private final List<ItemChangedHandler> itemChangedHandlers = new CopyOnWriteArrayList<>();
     private final List<ItemDeletedHandler> itemDeletedHandlers = new CopyOnWriteArrayList<>();
     private final DBusPath path;
-    private org.purejava.secret.interfaces.Collection collection = null;
-    private Properties properties = null;
 
     static {
         connection = ConnectionManager.getInstance().getConnection();
     }
 
     public Collection(DBusPath path) {
-        if (null == path) {
-            throw new IllegalArgumentException("DBusPath must not be null");
-        }
+        super(Static.Service.SECRETS, path.getPath(), org.purejava.secret.interfaces.Collection.class);
 
         this.path = path;
 
         try {
 
-            this.collection = Collection.connection.getRemoteObject(Static.Service.SECRETS,
+            this.remote = Collection.connection.getRemoteObject(Static.Service.SECRETS,
                     path.getPath(),
                     org.purejava.secret.interfaces.Collection.class);
 
@@ -61,14 +57,16 @@ public class Collection {
         }
     }
 
+
+    @Override
+    protected String getUnavailableMessage() {
+        return COLLECTION_NOT_AVAILABLE;
+    }
+
     public static Map<String, Variant<?>> createProperties(String label) {
         HashMap<String, Variant<?>> properties = new HashMap<>();
         properties.put(LABEL, new Variant<>(label));
         return properties;
-    }
-
-    private boolean isUsable() {
-        return null != collection;
     }
 
     /**
@@ -78,11 +76,7 @@ public class Collection {
      * @see DBusPath
      */
     public DBusPath delete() {
-        if (isUsable()) {
-            return collection.Delete();
-        }
-        LOG.error(COLLECTION_NOT_AVAILABLE);
-        return null;
+        return dBusCall("Delete", () -> remote.Delete());
     }
 
     /**
@@ -93,11 +87,7 @@ public class Collection {
      * @see DBusPath
      */
     public List<DBusPath> searchItems(Map<String, String> attributes) {
-        if (isUsable()) {
-            return collection.SearchItems(attributes);
-        }
-        LOG.error(COLLECTION_NOT_AVAILABLE);
-        return null;
+        return dBusCall("SearchItems", () -> remote.SearchItems(attributes));
     }
 
     /**
@@ -137,15 +127,11 @@ public class Collection {
      * @see DBusPath
      */
     public Pair<DBusPath, DBusPath> createItem(Map<String, Variant<?>> properties, Secret secret, boolean replace) {
-        if (!isUsable()) {
-            LOG.error(COLLECTION_NOT_AVAILABLE);
-            return null;
-        }
         if (null == secret) {
             LOG.error("Cannot createItem as required secret is missing");
             return null;
         }
-        return collection.CreateItem(properties, secret, replace);
+        return dBusCall("CreateItem", () -> remote.CreateItem(properties, secret, replace));
     }
 
     /**
@@ -154,11 +140,8 @@ public class Collection {
      * @return Items in this collection.
      */
     public List<DBusPath> getItems() {
-        if (!isUsable()) {
-            LOG.error(COLLECTION_NOT_AVAILABLE);
-            return null;
-        }
-        return properties.Get(Static.Interfaces.COLLECTION, "Items");
+        return dBusCall("Get(Items)", () ->
+                properties.Get(Static.Interfaces.COLLECTION, "Items"));
     }
 
     /**
@@ -167,23 +150,15 @@ public class Collection {
      * @return The displayable label of this collection.
      */
     public String getLabel() {
-        if (!isUsable()) {
-            LOG.error(COLLECTION_NOT_AVAILABLE);
-            return null;
-        }
-        return properties.Get(Static.Interfaces.COLLECTION, "Label");
+        return dBusCall("Get(Label)", () ->
+                properties.Get(Static.Interfaces.COLLECTION, "Label"));
     }
 
     public void setLabel(String value) {
-        if (!isUsable()) {
-            LOG.error(COLLECTION_NOT_AVAILABLE);
-            return;
-        }
-        if (null == value) {
-            LOG.error("Cannot setLabel as required value is missing");
-            return;
-        }
-        properties.Set(Static.Interfaces.COLLECTION, "Label", new Variant<>(value));
+        dBusCall("Set(Label)", () -> {
+            properties.Set(Static.Interfaces.COLLECTION, "Label", new Variant<>(value));
+            return null;
+        });
     }
 
     /**
@@ -192,11 +167,8 @@ public class Collection {
      * @return Whether the collection is locked and must be authenticated by the client application.
      */
     public boolean isLocked() {
-        if (!isUsable()) {
-            LOG.error(COLLECTION_NOT_AVAILABLE);
-            return true;
-        }
-        return properties.Get(Static.Interfaces.COLLECTION, "Locked");
+        return dBusCall("Get(Locked)", () ->
+                properties.Get(Static.Interfaces.COLLECTION, "Locked"));
     }
 
     /**
@@ -205,11 +177,8 @@ public class Collection {
      * @return The unix time when the collection was created.
      */
     public UInt64 getCreated() {
-        if (!isUsable()) {
-            LOG.error(COLLECTION_NOT_AVAILABLE);
-            return null;
-        }
-        return properties.Get(Static.Interfaces.COLLECTION, "Created");
+        return dBusCall("Get(Created)", () ->
+                properties.Get(Static.Interfaces.COLLECTION, "Created"));
     }
 
     /**
@@ -218,11 +187,8 @@ public class Collection {
      * @return The unix time when the collection was last modified.
      */
     public UInt64 getModified() {
-        if (!isUsable()) {
-            LOG.error(COLLECTION_NOT_AVAILABLE);
-            return null;
-        }
-        return properties.Get(Static.Interfaces.COLLECTION, "Modified");
+        return dBusCall("Get(Modified)", () ->
+                properties.Get(Static.Interfaces.COLLECTION, "Modified"));
     }
 
     public String getDBusPath() {

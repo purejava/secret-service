@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class Prompt {
+public class Prompt extends DBusLoggingHandler<org.purejava.secret.interfaces.Prompt> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Prompt.class);
     private static final String PROMPT_NOT_AVAILABLE = "Prompt not available on DBus";
@@ -18,21 +18,18 @@ public class Prompt {
 
     private final List<CompletedHandler> completedHandlers = new CopyOnWriteArrayList<>();
     private final DBusPath path;
-    private org.purejava.secret.interfaces.Prompt prompt = null;
 
     static {
         connection = ConnectionManager.getInstance().getConnection();
     }
 
     public Prompt(DBusPath path) {
-        if (null == path) {
-            throw new IllegalArgumentException("DBusPath must not be null");
-        }
+        super(Static.Service.SECRETS, path.getPath(), org.purejava.secret.interfaces.Prompt.class);
 
         this.path = path;
 
         try {
-            this.prompt = Prompt.connection.getRemoteObject(Static.Service.SECRETS,
+            this.remote = Prompt.connection.getRemoteObject(Static.Service.SECRETS,
                     path.getPath(),
                     org.purejava.secret.interfaces.Prompt.class);
 
@@ -43,8 +40,9 @@ public class Prompt {
         }
     }
 
-    private boolean isUnusable() {
-        return null == prompt;
+    @Override
+    protected String getUnavailableMessage() {
+        return PROMPT_NOT_AVAILABLE;
     }
 
     /**
@@ -53,26 +51,24 @@ public class Prompt {
      * @param window_id Platform specific window handle to use for showing the prompt.
      */
     public void prompt(String window_id) {
-        if (isUnusable()) {
-            LOG.error(PROMPT_NOT_AVAILABLE);
-            return;
-        }
         if (Util.varIsEmpty(window_id)) {
             LOG.error("Cannot prompt as required window_id is missing");
             return;
         }
-        prompt.Prompt(window_id);
+        dBusCall("Prompt", () -> {
+            remote.Prompt(window_id);
+            return null;
+        });
     }
 
     /**
      * Dismiss the prompt.
      */
     public void dismiss() {
-        if (isUnusable()) {
-            LOG.error(PROMPT_NOT_AVAILABLE);
-            return;
-        }
-        prompt.Dismiss();
+        dBusCall("Dismiss", () -> {
+            remote.Dismiss();
+            return null;
+        });
     }
 
     /**
