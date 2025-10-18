@@ -260,23 +260,17 @@ public class Service {
 
     private void notifyOnCollectionCreated(org.purejava.secret.interfaces.Service.CollectionCreated signal) {
         if (getDBusPath().equals(signal.collection.getPath())) {
-            for (CollectionCreatedHandler handler : collectionCreatedHandlers) {
-                handler.onCollectionCreated(signal.collection);
-            }
+            collectionCreatedHandlers.forEach(handler -> handler.onCollectionCreated(signal.collection));
         }
     }
     private void notifyOnCollectionChanged(org.purejava.secret.interfaces.Service.CollectionChanged signal) {
         if (getDBusPath().equals(signal.collection.getPath())) {
-            for (CollectionChangedHandler handler : collectionChangedHandlers) {
-                handler.onCollectionChanged(signal.collection);
-            }
+            collectionChangedHandlers.forEach(handler -> handler.onCollectionChanged(signal.collection));
         }
     }
     private void notifyOnCollectionDeleted(org.purejava.secret.interfaces.Service.CollectionDeleted signal) {
         if (getDBusPath().equals(signal.collection.getPath())) {
-            for (CollectionDeletedHandler handler : collectionDeletedHandlers) {
-                handler.onCollectionDeleted(signal.collection);
-            }
+            collectionDeletedHandlers.forEach(handler -> handler.onCollectionDeleted(signal.collection));
         }
     }
 

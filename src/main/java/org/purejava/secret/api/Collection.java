@@ -231,23 +231,17 @@ public class Collection {
 
     private void notifyOnItemCreated(org.purejava.secret.interfaces.Collection.ItemCreated signal) {
         if (getDBusPath().equals(signal.item.getPath())) {
-            for (ItemCreatedHandler handler : itemCreatedHandlers) {
-                handler.onItemCreated(signal.item);
-            }
+            itemCreatedHandlers.forEach(handler -> handler.onItemCreated(signal.item));
         }
     }
     private void notifyOnItemChanged(org.purejava.secret.interfaces.Collection.ItemChanged signal) {
         if (getDBusPath().equals(signal.item.getPath())) {
-            for (ItemChangedHandler handler : itemChangedHandlers) {
-                handler.onItemChanged(signal.item);
-            }
+            itemChangedHandlers.forEach(handler -> handler.onItemChanged(signal.item));
         }
     }
     private void notifyOnItemDeleted(org.purejava.secret.interfaces.Collection.ItemDeleted signal) {
         if (getDBusPath().equals(signal.item.getPath())) {
-            for (ItemDeletedHandler handler : itemDeletedHandlers) {
-                handler.onItemDeleted(signal.item);
-            }
+            itemDeletedHandlers.forEach(handler -> handler.onItemDeleted(signal.item));
         }
     }
 

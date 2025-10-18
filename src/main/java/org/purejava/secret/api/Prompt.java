@@ -83,9 +83,7 @@ public class Prompt {
     }
 
     private void notifyOnCompleted(org.purejava.secret.interfaces.Prompt.Completed signal) {
-        for (CompletedHandler handler : completedHandlers) {
-            handler.onCompleted(signal.dismissed, signal.result);
-        }
+        completedHandlers.forEach(handler -> handler.onCompleted(signal.dismissed, signal.result));
     }
 
     public void addCompletedHandler(CompletedHandler handler) {
