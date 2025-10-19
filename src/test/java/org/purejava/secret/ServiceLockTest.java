@@ -2,7 +2,6 @@ package org.purejava.secret;
 
 import org.freedesktop.dbus.DBusPath;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.purejava.secret.api.Collection;
@@ -14,7 +13,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled
 public class ServiceLockTest {
     final String NAME = "TESTLock";
     final String COLLECTION_PATH = "/org/freedesktop/secrets/collection/TESTLock";
@@ -35,7 +33,7 @@ public class ServiceLockTest {
         var path = pair.a.getPath();
         var promtp = pair.b;
         assertEquals("/", path);
-        var result = (DBusPath) Util.promptAndGetResult(promtp);
+        var result = Util.promptAndGetResultAsDBusPath(promtp);
         assertEquals(COLLECTION_PATH, result.getPath());
         var myCollection = new Collection(new DBusPath(Static.DBusPath.COLLECTION + "/" + NAME));
         assertFalse(myCollection.isLocked());
@@ -46,8 +44,7 @@ public class ServiceLockTest {
         var prompt = context.service.unlock(toLock);
         var promptb = prompt.b;
         assertNotEquals("/", promptb.getPath());
-        @SuppressWarnings("unchecked")
-        var unlocked = (ArrayList<DBusPath>) Util.promptAndGetResult(promptb);
+        var unlocked = Util.promptAndGetResultAsArrayList(promptb);
         assertEquals(COLLECTION_PATH, unlocked.getFirst().getPath());
         var dBusPath = myCollection.delete();
         assertEquals("/", dBusPath.getPath());

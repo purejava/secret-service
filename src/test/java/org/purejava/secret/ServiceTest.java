@@ -38,7 +38,6 @@ public class ServiceTest {
 
     @Test
     @DisplayName("Create collection (dismissed)")
-    @Disabled
     // this collection should be dismissed
     void createCollectionCanceled() {
         var props = Collection.createProperties("TESTmyCollection-dismissed");
@@ -46,13 +45,12 @@ public class ServiceTest {
         var path = pair.a.getPath();
         var promtp = pair.b;
         assertEquals("/", path);
-        var result = (DBusPath) Util.promptAndGetResult(promtp);
+        var result = Util.promptAndGetResultAsDBusPath(promtp);
         assertEquals("/", result.getPath());
     }
 
     @Test
     @DisplayName("Create collection (empty password)")
-    @Disabled
     // this collection should be created with an empty password
     void createCollectionEmptyPassword() {
         var props = Collection.createProperties(NAME);
@@ -60,7 +58,7 @@ public class ServiceTest {
         var path = pair.a.getPath();
         var promtp = pair.b;
         assertEquals("/", path);
-        var result = (DBusPath) Util.promptAndGetResult(promtp);
+        var result = Util.promptAndGetResultAsDBusPath(promtp);
         assertEquals(COLLECTION_PATH, result.getPath());
         var myCollection = new Collection(new DBusPath(Static.DBusPath.COLLECTION + "/" + NAME));
         var label = myCollection.getLabel();
