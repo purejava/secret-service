@@ -4,6 +4,7 @@ import org.freedesktop.dbus.DBusPath;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.interfaces.Properties;
+import org.freedesktop.dbus.types.UInt64;
 import org.freedesktop.dbus.types.Variant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,8 +135,9 @@ public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item
      * @return The unix time when the item was created.
      */
     public Long getCreated() {
-        return dBusCall("Get(Created)", () ->
+        var response = dBusCall("Get(Created)", () ->
                 properties.Get(Static.Interfaces.ITEM, "Created"));
+        return null == response ? null : ((UInt64) response).longValue();
     }
 
     /**
@@ -144,8 +146,9 @@ public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item
      * @return The unix time when the item was last modified.
      */
     public Long getModified() {
-        return dBusCall("Get(Modified)", () ->
+        var response = dBusCall("Get(Modified)", () ->
                 properties.Get(Static.Interfaces.ITEM, "Modified"));
+        return null == response ? null : ((UInt64) response).longValue();
     }
 
     public String getDBusPath() {

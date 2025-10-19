@@ -176,9 +176,10 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
      *
      * @return The unix time when the collection was created.
      */
-    public UInt64 getCreated() {
-        return dBusCall("Get(Created)", () ->
+    public Long getCreated() {
+        var response = dBusCall("Get(Created)", () ->
                 properties.Get(Static.Interfaces.COLLECTION, "Created"));
+        return null == response ? null : ((UInt64) response).longValue();
     }
 
     /**
@@ -186,9 +187,10 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
      *
      * @return The unix time when the collection was last modified.
      */
-    public UInt64 getModified() {
-        return dBusCall("Get(Modified)", () ->
+    public Long getModified() {
+        var response = dBusCall("Get(Modified)", () ->
                 properties.Get(Static.Interfaces.COLLECTION, "Modified"));
+        return null == response ? null : ((UInt64) response).longValue();
     }
 
     public String getDBusPath() {
