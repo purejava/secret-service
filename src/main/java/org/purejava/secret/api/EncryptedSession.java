@@ -174,6 +174,8 @@ public class EncryptedSession {
         return service;
     }
 
+    public DBusPath getSession() { return session; }
+
     public void clear() {
         if (privateKey != null) try {
             privateKey.destroy();
