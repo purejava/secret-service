@@ -198,17 +198,17 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
     }
 
     private void notifyOnItemCreated(org.purejava.secret.interfaces.Collection.ItemCreated signal) {
-        if (getDBusPath().equals(signal.item.getPath())) {
+        if (signal.item.getPath().startsWith(getDBusPath())) {
             itemCreatedHandlers.forEach(handler -> handler.onItemCreated(signal.item));
         }
     }
     private void notifyOnItemChanged(org.purejava.secret.interfaces.Collection.ItemChanged signal) {
-        if (getDBusPath().equals(signal.item.getPath())) {
+        if (signal.item.getPath().startsWith(getDBusPath())) {
             itemChangedHandlers.forEach(handler -> handler.onItemChanged(signal.item));
         }
     }
     private void notifyOnItemDeleted(org.purejava.secret.interfaces.Collection.ItemDeleted signal) {
-        if (getDBusPath().equals(signal.item.getPath())) {
+        if (signal.item.getPath().startsWith(getDBusPath())) {
             itemDeletedHandlers.forEach(handler -> handler.onItemDeleted(signal.item));
         }
     }

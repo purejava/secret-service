@@ -16,6 +16,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -36,7 +37,11 @@ public class CollectionCreateItemTest {
     void createItemSecret() throws InvalidAlgorithmParameterException,
             NoSuchAlgorithmException,
             InvalidKeySpecException,
-            InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
+            InvalidKeyException,
+            NoSuchPaddingException,
+            IllegalBlockSizeException,
+            BadPaddingException,
+            InterruptedException {
         EncryptedSession session = new EncryptedSession();
         session.initialize();
         var sessionOpened = session.openSession();
@@ -51,6 +56,13 @@ public class CollectionCreateItemTest {
         var result = Util.promptAndGetResultAsDBusPath(promtp);
         assertEquals(COLLECTION_PATH, result.getPath());
         var myCollection = new Collection(new DBusPath(Static.DBusPath.COLLECTION + "/" + NAME));
+        AtomicBoolean handlerCalled = new AtomicBoolean(false);
+        final DBusPath[] handlerItemPath = new DBusPath[1];
+
+        myCollection.addItemCreatedHandler(item -> {
+            handlerCalled.set(true);
+            handlerItemPath[0] = item ;
+        });
         Map<String, String> attribs = new HashMap<>();
         attribs.put("Attrib1", "Value1");
         attribs.put("Attrib2", "Value2");
@@ -60,6 +72,10 @@ public class CollectionCreateItemTest {
         assertTrue(pair.a.getPath().startsWith(COLLECTION_PATH + "/"));
         var found = myCollection.searchItems(attribs);
         assertTrue(found.getFirst().getPath().startsWith(COLLECTION_PATH + "/"));
+        Thread.sleep(200);
+        assertTrue(handlerCalled.get());
+        assertTrue(handlerItemPath[0].getPath().startsWith(COLLECTION_PATH + "/"));
+        assertEquals(pair.a.getPath(), handlerItemPath[0].getPath());
         found = myCollection.getItems();
         assertEquals(1, found.size());
         assertTrue(found.getFirst().getPath().startsWith(COLLECTION_PATH + "/"));

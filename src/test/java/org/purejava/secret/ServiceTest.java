@@ -7,6 +7,7 @@ import org.purejava.secret.api.Static;
 import org.purejava.secret.api.Util;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -52,7 +53,14 @@ public class ServiceTest {
     @Test
     @DisplayName("Create collection (empty password)")
     // this collection should be created with an empty password
-    void createCollectionEmptyPassword() {
+    void createCollectionEmptyPassword() throws InterruptedException {
+        AtomicBoolean handlerCalled = new AtomicBoolean(false);
+        final DBusPath[] handlerCollectionPath = new DBusPath[1];
+
+        context.service.addCollectionCreatedHandler(item -> {
+            handlerCalled.set(true);
+            handlerCollectionPath[0] = item ;
+        });
         var props = Collection.createProperties(NAME);
         var pair = context.service.createCollection(props, "");
         var path = pair.a.getPath();
@@ -61,6 +69,9 @@ public class ServiceTest {
         var result = Util.promptAndGetResultAsDBusPath(promtp);
         assertEquals(COLLECTION_PATH, result.getPath());
         var myCollection = new Collection(new DBusPath(Static.DBusPath.COLLECTION + "/" + NAME));
+        Thread.sleep(200);
+        assertTrue(handlerCalled.get());
+        assertEquals(COLLECTION_PATH, handlerCollectionPath[0].getPath());
         var label = myCollection.getLabel();
         assertEquals(NAME, label);
         String newLabel = "testlabel";

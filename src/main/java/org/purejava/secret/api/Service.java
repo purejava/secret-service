@@ -228,21 +228,15 @@ public class Service extends DBusLoggingHandler<org.purejava.secret.interfaces.S
     }
 
     private void notifyOnCollectionCreated(org.purejava.secret.interfaces.Service.CollectionCreated signal) {
-        if (getDBusPath().equals(signal.collection.getPath())) {
-            collectionCreatedHandlers.forEach(handler -> handler.onCollectionCreated(signal.collection));
-        }
+        collectionCreatedHandlers.forEach(handler -> handler.onCollectionCreated(signal.collection));
     }
 
     private void notifyOnCollectionChanged(org.purejava.secret.interfaces.Service.CollectionChanged signal) {
-        if (getDBusPath().equals(signal.collection.getPath())) {
-            collectionChangedHandlers.forEach(handler -> handler.onCollectionChanged(signal.collection));
-        }
+        collectionChangedHandlers.forEach(handler -> handler.onCollectionChanged(signal.collection));
     }
 
     private void notifyOnCollectionDeleted(org.purejava.secret.interfaces.Service.CollectionDeleted signal) {
-        if (getDBusPath().equals(signal.collection.getPath())) {
-            collectionDeletedHandlers.forEach(handler -> handler.onCollectionDeleted(signal.collection));
-        }
+        collectionDeletedHandlers.forEach(handler -> handler.onCollectionDeleted(signal.collection));
     }
 
     public void addCollectionCreatedHandler(CollectionCreatedHandler handler) {
