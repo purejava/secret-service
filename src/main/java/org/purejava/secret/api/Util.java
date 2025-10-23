@@ -22,7 +22,8 @@ public class Util {
      * When something went wrong on executing the prompt or when the prompt was dismissed, "/" is returned.
      */
     public static DBusPath promptAndGetResultAsDBusPath(DBusPath path) {
-        if (!path.getPath().startsWith(Static.DBusPath.PROMPT + "/p")) {
+        if (!(path.getPath().startsWith(Static.DBusPath.PROMPT + "/p")
+                || path.getPath().startsWith(Static.DBusPath.PROMPT + "/u"))) {
             throw new IllegalArgumentException("Invalid DBusPath was provided for Prompt: " + path.getPath());
         }
         AtomicReference<Variant<?>> resultRef = new AtomicReference<>();
@@ -66,7 +67,8 @@ public class Util {
      * <p>When something went wrong on executing the prompt or when the prompt was dismissed, "/" is returned.</p>
      */
     public static ArrayList<DBusPath> promptAndGetResultAsArrayList(DBusPath path) {
-        if (!path.getPath().startsWith(Static.DBusPath.PROMPT + "/p")) {
+        if (!(path.getPath().startsWith(Static.DBusPath.PROMPT + "/p")
+                || path.getPath().startsWith(Static.DBusPath.PROMPT + "/u"))) {
             throw new IllegalArgumentException("Invalid DBusPath was provided for Prompt: " + path.getPath());
         }
 
