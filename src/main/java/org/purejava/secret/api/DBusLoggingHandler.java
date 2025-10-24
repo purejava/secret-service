@@ -2,6 +2,10 @@ package org.purejava.secret.api;
 
 import org.freedesktop.dbus.interfaces.DBusInterface;
 import org.freedesktop.dbus.interfaces.Properties;
+import org.purejava.secret.api.errors.DBusCallException;
+import org.purejava.secret.api.errors.SecretIsLockedException;
+import org.purejava.secret.api.errors.SecretNoSessionException;
+import org.purejava.secret.api.errors.SecretNoSuchObjectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,17 +41,54 @@ public abstract class DBusLoggingHandler<T extends DBusInterface> {
 
     protected abstract String getUnavailableMessage();
 
-    protected <R> R dBusCall(String operation, String operator, DBusOperation<R> action) {
+    public record DBusResult<T>(T value, DBusCallException error) {
+        public boolean isSuccess() {
+            return error == null;
+        }
+    }
+
+    protected <R> DBusResult<R> dBusCall(String operation,
+                                         String operator,
+                                         DBusOperation<R> action) {
+
         if (!isUsable()) {
-            LOG.error(getUnavailableMessage());
-            return null;
+            DBusCallException ex = new DBusCallException(getUnavailableMessage(), null);
+            return new DBusResult<>(null, ex);
         }
+
         try {
-            return action.call();
+
+            return new DBusResult<>(action.call(), null);
+
         } catch (Exception e) {
-            LOG.error("DBus error on calling {} for {}: {}", operation, operator, e.getMessage(), e);
-            return null;
+
+            LOG.warn("DBus error on calling {} for {}: {}", operation, operator, e.getMessage());
+            DBusCallException mapped = mapDBusError(operation, operator, e);
+            return new DBusResult<>(null, mapped);
+
         }
+    }
+
+    private DBusCallException mapDBusError(String operation, String operator, Exception e) {
+        String msg = e.getMessage();
+
+        if (msg == null) {
+            return new DBusCallException("Unknown DBus error", e);
+        }
+
+        if (msg.contains("org.freedesktop.Secret.Error.IsLocked")) {
+            return new SecretIsLockedException(operation, operator, e);
+        }
+        if (msg.contains("org.freedesktop.Secret.Error.NoSession")) {
+            return new SecretNoSessionException(operation, operator, e);
+        }
+        if (msg.contains("org.freedesktop.Secret.Error.NoSuchObject")) {
+            return new SecretNoSuchObjectException(operation, operator, e);
+        }
+
+        return new DBusCallException(
+                "DBus error on calling " + operation + " for " + operator + ": " + msg, e
+        );
     }
 
     @FunctionalInterface

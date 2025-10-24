@@ -72,10 +72,11 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
     /**
      * Delete this collection.
      *
-     * @return prompt &mdash; A prompt to delete the collection, or the special value '/' when no prompt is necessary.
+     * @return In case the DBus call succeeded: prompt &mdash; A prompt to delete the collection, or the special
+     * value '/' when no prompt is necessary, the DBus error otherwise.
      * @see DBusPath
      */
-    public DBusPath delete() {
+    public DBusResult<DBusPath> delete() {
         return dBusCall("Delete", getDBusPath(), () -> remote.Delete());
     }
 
@@ -83,10 +84,11 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
      * Search for items in this collection matching the lookup attributes.
      *
      * @param attributes Attributes to match.
-     * @return results     &mdash; Items that matched the attributes.
+     * @return In case the DBus call succeeded: results     &mdash; Items that matched the attributes, the DBus error
+     * otherwise.
      * @see DBusPath
      */
-    public List<DBusPath> searchItems(Map<String, String> attributes) {
+    public DBusResult<List<DBusPath>> searchItems(Map<String, String> attributes) {
         return dBusCall("SearchItems", getDBusPath(), () -> remote.SearchItems(attributes));
     }
 
@@ -119,14 +121,16 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
      *                   </p>
      * @param secret     The secret to store in the item, encoded with the included session.
      * @param replace    Whether to replace an item with the same attributes or not.
-     * @return Pair&lt;item, prompt&gt;<br>
+     * @return In case the DBus call succeeded: Pair&lt;item, prompt&gt;<br>
      * <br>
      * item                 &mdash; The item created, or the special value '/' if a prompt is necessary.<br>
      * <br>
-     * prompt               &mdash; A prompt object, or the special value '/' if no prompt is necessary.<br>
+     * prompt               &mdash; A prompt object, or the special value '/' if no prompt is necessary,<br>
+     * <br>
+     * the DBus error otherwise.
      * @see DBusPath
      */
-    public Pair<DBusPath, DBusPath> createItem(Map<String, Variant<?>> properties, Secret secret, boolean replace) {
+    public DBusResult<Pair<DBusPath, DBusPath>> createItem(Map<String, Variant<?>> properties, Secret secret, boolean replace) {
         if (null == secret) {
             LOG.error("Cannot createItem as required secret is missing");
             return null;
@@ -137,21 +141,49 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
     /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      *
-     * @return Items in this collection.
+     * @return Items in this collection, in case the DBus call succeeded, the DBus error otherwise.
      */
-    public List<DBusPath> getItems() {
-        return dBusCall("Get(Items)", getDBusPath(), () ->
-                properties.Get(Static.Interfaces.COLLECTION, "Items"));
+    public DBusResult<List<DBusPath>> getItems() {
+
+        DBusResult<Variant<?>> result = dBusCall(
+                "Get(Items)",
+                getDBusPath(),
+                () -> properties.Get(Static.Interfaces.COLLECTION, "Items")
+        );
+
+        if (!result.isSuccess()) {
+            // propagate error wrapped in the same container type
+            return new DBusResult<>(null, result.error());
+        }
+
+        @SuppressWarnings("unchecked")
+        List<DBusPath> paths = ((Variant<List<DBusPath>>) result.value()).getValue();
+
+        return new DBusResult<>(paths, null);
     }
 
     /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      *
-     * @return The displayable label of this collection.
+     * @return The displayable label of this collection, in case the DBus call succeeded, the DBus error otherwise.
      */
-    public String getLabel() {
-        return dBusCall("Get(Label)", getDBusPath(), () ->
-                properties.Get(Static.Interfaces.COLLECTION, "Label"));
+    public DBusResult<String> getLabel() {
+
+        DBusResult<Variant<?>> result = dBusCall(
+                "Get(Label)",
+                getDBusPath(),
+                () -> properties.Get(Static.Interfaces.COLLECTION, "Label")
+        );
+
+        if (!result.isSuccess()) {
+            // propagate error wrapped in the same container type
+            return new DBusResult<>(null, result.error());
+        }
+
+        @SuppressWarnings("unchecked")
+        String label = ((Variant<String>) result.value()).getValue();
+
+        return new DBusResult<>(label, null);
     }
 
     public void setLabel(String value) {
@@ -164,9 +196,10 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
     /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      *
-     * @return Whether the collection is locked and must be authenticated by the client application.
+     * @return Whether the collection is locked and must be authenticated by the client application, in case the
+     * DBus call succeeded, the DBus error otherwise.
      */
-    public boolean isLocked() {
+    public DBusResult<Boolean> isLocked() {
         return dBusCall("Get(Locked)", getDBusPath(), () ->
                 properties.Get(Static.Interfaces.COLLECTION, "Locked"));
     }
@@ -174,23 +207,49 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
     /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      *
-     * @return The unix time when the collection was created.
+     * @return The unix time when the collection was created, in case the DBus call succeeded, the DBus error otherwise.
      */
-    public Long getCreated() {
-        var response = dBusCall("Get(Created)", getDBusPath(), () ->
-                properties.Get(Static.Interfaces.COLLECTION, "Created"));
-        return null == response ? null : ((UInt64) response).longValue();
+    public DBusResult<Long> getCreated() {
+
+        DBusResult<Variant<?>> result = dBusCall(
+                "Get(Created)",
+                getDBusPath(),
+                () -> properties.Get(Static.Interfaces.COLLECTION, "Created")
+        );
+
+        if (!result.isSuccess()) {
+            return new DBusResult<>(null, result.error());
+        }
+
+        @SuppressWarnings("unchecked")
+        Variant<UInt64> variant = (Variant<UInt64>) result.value();
+        Long created = variant.getValue().longValue();
+
+        return new DBusResult<>(created, null);
     }
 
     /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      *
-     * @return The unix time when the collection was last modified.
+     * @return The unix time when the collection was last modified, in case the DBus call succeeded, the DBus error otherwise.
      */
-    public Long getModified() {
-        var response = dBusCall("Get(Modified)", getDBusPath(), () ->
-                properties.Get(Static.Interfaces.COLLECTION, "Modified"));
-        return null == response ? null : ((UInt64) response).longValue();
+    public DBusResult<Long> getModified() {
+
+        DBusResult<Variant<?>> result = dBusCall(
+                "Get(Modified)",
+                getDBusPath(),
+                () -> properties.Get(Static.Interfaces.COLLECTION, "Modified")
+        );
+
+        if (!result.isSuccess()) {
+            return new DBusResult<>(null, result.error());
+        }
+
+        @SuppressWarnings("unchecked")
+        Variant<UInt64> variant = (Variant<UInt64>) result.value();
+        Long modified = variant.getValue().longValue();
+
+        return new DBusResult<>(modified, null);
     }
 
     public String getDBusPath() {

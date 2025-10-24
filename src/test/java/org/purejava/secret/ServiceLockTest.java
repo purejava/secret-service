@@ -30,23 +30,23 @@ public class ServiceLockTest {
     void createCollectionAndLock() {
         var props = Collection.createProperties(NAME);
         var pair = context.service.createCollection(props, "");
-        var path = pair.a.getPath();
-        var promtp = pair.b;
+        var path = pair.value().a.getPath();
+        var promtp = pair.value().b;
         assertEquals("/", path);
         var result = Util.promptAndGetResultAsDBusPath(promtp);
         assertEquals(COLLECTION_PATH, result.getPath());
         var myCollection = new Collection(new DBusPath(Static.DBusPath.COLLECTION + "/" + NAME));
-        assertFalse(myCollection.isLocked());
+        assertFalse(myCollection.isLocked().value());
         List<DBusPath> toLock = new ArrayList<>();
         toLock.add(new DBusPath(COLLECTION_PATH));
         context.service.lock(toLock);
-        assertTrue(myCollection.isLocked());
-        var prompt = context.service.unlock(toLock);
+        assertTrue(myCollection.isLocked().value());
+        var prompt = context.service.unlock(toLock).value();
         var promptb = prompt.b;
         assertNotEquals("/", promptb.getPath());
         var unlocked = Util.promptAndGetResultAsArrayList(promptb);
         assertEquals(COLLECTION_PATH, unlocked.getFirst().getPath());
-        var dBusPath = myCollection.delete();
+        var dBusPath = myCollection.delete().value();
         assertEquals("/", dBusPath.getPath());
     }
 }

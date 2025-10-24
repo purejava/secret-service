@@ -50,8 +50,8 @@ public class CollectionCreateItemTest {
         var props = Collection.createProperties(NAME);
         var currentTime = new Date().getTime() / 1000L;
         var pair = context.service.createCollection(props, "");
-        var path = pair.a.getPath();
-        var promtp = pair.b;
+        var path = pair.value().a.getPath();
+        var promtp = pair.value().b;
         assertEquals("/", path);
         var result = Util.promptAndGetResultAsDBusPath(promtp);
         assertEquals(COLLECTION_PATH, result.getPath());
@@ -69,21 +69,21 @@ public class CollectionCreateItemTest {
         var itemProps = Item.createProperties("HelloItem", attribs);
         var secret = session.encrypt("passwd");
         pair = myCollection.createItem(itemProps, secret, false);
-        assertTrue(pair.a.getPath().startsWith(COLLECTION_PATH + "/"));
+        assertTrue(pair.value().a.getPath().startsWith(COLLECTION_PATH + "/"));
         var found = myCollection.searchItems(attribs);
-        assertTrue(found.getFirst().getPath().startsWith(COLLECTION_PATH + "/"));
+        assertTrue(found.value().getFirst().getPath().startsWith(COLLECTION_PATH + "/"));
         Thread.sleep(200);
         assertTrue(handlerCalled.get());
         assertTrue(handlerItemPath[0].getPath().startsWith(COLLECTION_PATH + "/"));
-        assertEquals(pair.a.getPath(), handlerItemPath[0].getPath());
+        assertEquals(pair.value().a.getPath(), handlerItemPath[0].getPath());
         found = myCollection.getItems();
-        assertEquals(1, found.size());
-        assertTrue(found.getFirst().getPath().startsWith(COLLECTION_PATH + "/"));
-        assertTrue(myCollection.getCreated() > currentTime);
-        assertTrue(myCollection.getModified() >= myCollection.getCreated());
+        assertEquals(1, found.value().size());
+        assertTrue(found.value().getFirst().getPath().startsWith(COLLECTION_PATH + "/"));
+        assertTrue(myCollection.getCreated().value() > currentTime);
+        assertTrue(myCollection.getModified().value() >= myCollection.getCreated().value());
         var serviceItems = context.service.searchItems(attribs);
-        assertEquals(serviceItems.a.getFirst().getPath(), found.getFirst().getPath());
+        assertEquals(serviceItems.value().a.getFirst().getPath(), found.value().getFirst().getPath());
         var dBusPath = myCollection.delete();
-        assertEquals("/", dBusPath.getPath());
+        assertEquals("/", dBusPath.value().getPath());
     }
 }

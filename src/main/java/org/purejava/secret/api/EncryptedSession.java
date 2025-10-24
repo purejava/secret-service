@@ -3,6 +3,7 @@ package org.purejava.secret.api;
 import at.favre.lib.hkdf.HKDF;
 import org.freedesktop.dbus.DBusPath;
 import org.freedesktop.dbus.types.Variant;
+import org.purejava.secret.api.DBusLoggingHandler.DBusResult;
 
 import javax.crypto.*;
 import javax.crypto.interfaces.DHPublicKey;
@@ -72,15 +73,15 @@ public class EncryptedSession {
         BigInteger ya = ((DHPublicKey) publicKey).getY();
 
         // open session with "Client DH pub key as an array of bytes" without prime or generator
-        Pair<Variant<ArrayList<Byte>>, DBusPath> osResponse = service.openSession(
+        DBusResult<Pair<Variant<ArrayList<Byte>>, DBusPath>> osResponse = service.openSession(
                 Algorithm.DH_IETF1024_SHA256_AES128_CBC_PKCS7, new Variant<>(ya.toByteArray()));
 
         // transform peer's raw Y to a public key
-        if (osResponse != null) {
-            ArrayList<Byte> list = osResponse.a.getValue();
+        if (osResponse.isSuccess()) {
+            ArrayList<Byte> list = osResponse.value().a.getValue();
             yb = new byte[list.size()];
             IntStream.range(0, list.size()).forEach(i -> yb[i] = list.get(i));
-            session = osResponse.b;
+            session = osResponse.value().b;
             return true;
         } else {
             return false;
