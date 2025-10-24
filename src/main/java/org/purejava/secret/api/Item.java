@@ -81,16 +81,20 @@ public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item
             return null;
         }
         var secret = dBusCall("GetSecret", () -> remote.GetSecret(session));
-        var contentType = secret.getContentType();
-        var sessionPath = secret.getSession();
-        var parameters = secret.getSecretParameters();
-        var value = secret.getSecretValue();
-        if (contentType.equals(Secret.TEXT_PLAIN) || contentType.equals(Secret.TEXT_PLAIN_CHARSET_UTF_8)) {
-            // replace the content-type "text/plain" with default "text/plain; charset=utf8"
-            return new Secret(sessionPath, parameters, value);
+        if (null == secret) {
+            return null;
         } else {
-            // use given non default content-type
-            return new Secret(sessionPath, parameters, value, contentType);
+            var contentType = secret.getContentType();
+            var sessionPath = secret.getSession();
+            var parameters = secret.getSecretParameters();
+            var value = secret.getSecretValue();
+            if (contentType.equals(Secret.TEXT_PLAIN) || contentType.equals(Secret.TEXT_PLAIN_CHARSET_UTF_8)) {
+                // replace the content-type "text/plain" with default "text/plain; charset=utf8"
+                return new Secret(sessionPath, parameters, value);
+            } else {
+                // use given non default content-type
+                return new Secret(sessionPath, parameters, value, contentType);
+            }
         }
     }
 
