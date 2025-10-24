@@ -63,9 +63,10 @@ public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item
     /**
      * Delete this item.
      *
-     * @return Prompt   &mdash; A prompt dbuspath, or the special value '/' if no prompt is necessary.
+     * @return Prompt   &mdash; A prompt dbuspath, or the special value '/' if no prompt is necessary, in case the
+     * DBus call succeeded, the DBus error otherwise.
      */
-    public DBusPath delete() {
+    public DBusResult<DBusPath> delete() {
         return dBusCall("Delete", getDBusPath(), () -> remote.Delete());
     }
 
@@ -73,7 +74,7 @@ public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item
      * Retrieve the secret for this item.
      *
      * @param session The session to use to encode the secret.
-     * @return secret   &mdash; The secret retrieved.
+     * @return secret   &mdash; The secret retrieved, in case the DBus call succeeded, null otherwise.
      */
     public Secret getSecret(DBusPath session) {
         if (null == session) {
@@ -81,13 +82,13 @@ public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item
             return null;
         }
         var secret = dBusCall("GetSecret", getDBusPath(), () -> remote.GetSecret(session));
-        if (null == secret) {
+        if (!secret.isSuccess()) {
             return null;
         } else {
-            var contentType = secret.getContentType();
-            var sessionPath = secret.getSession();
-            var parameters = secret.getSecretParameters();
-            var value = secret.getSecretValue();
+            var contentType = secret.value().getContentType();
+            var sessionPath = secret.value().getSession();
+            var parameters = secret.value().getSecretParameters();
+            var value = secret.value().getSecretValue();
             if (contentType.equals(Secret.TEXT_PLAIN) || contentType.equals(Secret.TEXT_PLAIN_CHARSET_UTF_8)) {
                 // replace the content-type "text/plain" with default "text/plain; charset=utf8"
                 return new Secret(sessionPath, parameters, value);
@@ -117,9 +118,10 @@ public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item
     /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      *
-     * @return Whether the item is locked and requires authentication, or not.
+     * @return Whether the item is locked and requires authentication, or not, in case the DBus call succeeded,
+     * the DBus error otherwise.
      */
-    public boolean isLocked() {
+    public DBusResult<Boolean> isLocked() {
         return dBusCall("Get(Locked)", getDBusPath(), () ->
                 properties.Get(Static.Interfaces.ITEM, "Locked"));
     }
@@ -127,43 +129,97 @@ public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item
     /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      *
-     * @return The attributes of the item.
+     * @return The attributes of the item, in case the DBus call succeeded, the DBus error otherwise.
      */
-    public Map<String, String> getAttributes() {
-        return dBusCall("Get(Attributes)", getDBusPath(), () ->
-                properties.Get(Static.Interfaces.ITEM, "Attributes"));
+    public DBusResult<Map<String, String>> getAttributes() {
+
+        DBusResult<Variant<?>> result = dBusCall(
+                "Get(Attributes)",
+                getDBusPath(),
+                () -> properties.Get(Static.Interfaces.ITEM, "Attributes")
+        );
+
+        if (!result.isSuccess()) {
+            return new DBusResult<>(null, result.error());
+        }
+
+        @SuppressWarnings("unchecked")
+        Variant<Map<String, String>> variant = (Variant<Map<String, String>>) result.value();
+        Map<String, String> attributes = variant.getValue();
+
+        return new DBusResult<>(attributes, null);
     }
 
     /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      *
-     * @return The displayable label of this collection.
+     * @return The displayable label of this collection, in case the DBus call succeeded, the DBus error otherwise.
      */
-    public String getLabel() {
-        return dBusCall("Get(Label)", getDBusPath(), () ->
-                properties.Get(Static.Interfaces.ITEM, "Label"));
+    public DBusResult<String> getLabel() {
+
+        DBusResult<Variant<?>> result = dBusCall(
+                "Get(Label)",
+                getDBusPath(),
+                () -> properties.Get(Static.Interfaces.ITEM, "Label")
+        );
+
+        if (!result.isSuccess()) {
+            // propagate error wrapped in the same container type
+            return new DBusResult<>(null, result.error());
+        }
+
+        @SuppressWarnings("unchecked")
+        String label = ((Variant<String>) result.value()).getValue();
+
+        return new DBusResult<>(label, null);
     }
 
     /**
      * Read-only property "Created"
      *
-     * @return The unix time when the item was created.
+     * @return The unix time when the item was created, in case the DBus call succeeded, the DBus error otherwise.
      */
-    public Long getCreated() {
-        var response = dBusCall("Get(Created)", getDBusPath(), () ->
-                properties.Get(Static.Interfaces.ITEM, "Created"));
-        return null == response ? null : ((UInt64) response).longValue();
+    public DBusResult<Long> getCreated() {
+
+        DBusResult<Variant<?>> result = dBusCall(
+                "Get(Created)",
+                getDBusPath(),
+                () -> properties.Get(Static.Interfaces.ITEM, "Created")
+        );
+
+        if (!result.isSuccess()) {
+            return new DBusResult<>(null, result.error());
+        }
+
+        @SuppressWarnings("unchecked")
+        Variant<UInt64> variant = (Variant<UInt64>) result.value();
+        Long created = variant.getValue().longValue();
+
+        return new DBusResult<>(created, null);
     }
 
     /**
      * Read-only property "Modified"
      *
-     * @return The unix time when the item was last modified.
+     * @return The unix time when the item was last modified, in case the DBus call succeeded, the DBus error otherwise.
      */
-    public Long getModified() {
-        var response = dBusCall("Get(Modified)", getDBusPath(), () ->
-                properties.Get(Static.Interfaces.ITEM, "Modified"));
-        return null == response ? null : ((UInt64) response).longValue();
+    public DBusResult<Long> getModified() {
+
+        DBusResult<Variant<?>> result = dBusCall(
+                "Get(Modified)",
+                getDBusPath(),
+                () -> properties.Get(Static.Interfaces.ITEM, "Modified")
+        );
+
+        if (!result.isSuccess()) {
+            return new DBusResult<>(null, result.error());
+        }
+
+        @SuppressWarnings("unchecked")
+        Variant<UInt64> variant = (Variant<UInt64>) result.value();
+        Long modified = variant.getValue().longValue();
+
+        return new DBusResult<>(modified, null);
     }
 
     public String getDBusPath() {
