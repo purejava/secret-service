@@ -76,7 +76,7 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
      * @see DBusPath
      */
     public DBusPath delete() {
-        return dBusCall("Delete", () -> remote.Delete());
+        return dBusCall("Delete", getDBusPath(), () -> remote.Delete());
     }
 
     /**
@@ -87,7 +87,7 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
      * @see DBusPath
      */
     public List<DBusPath> searchItems(Map<String, String> attributes) {
-        return dBusCall("SearchItems", () -> remote.SearchItems(attributes));
+        return dBusCall("SearchItems", getDBusPath(), () -> remote.SearchItems(attributes));
     }
 
     /**
@@ -131,7 +131,7 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
             LOG.error("Cannot createItem as required secret is missing");
             return null;
         }
-        return dBusCall("CreateItem", () -> remote.CreateItem(properties, secret, replace));
+        return dBusCall("CreateItem", getDBusPath(), () -> remote.CreateItem(properties, secret, replace));
     }
 
     /**
@@ -140,7 +140,7 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
      * @return Items in this collection.
      */
     public List<DBusPath> getItems() {
-        return dBusCall("Get(Items)", () ->
+        return dBusCall("Get(Items)", getDBusPath(), () ->
                 properties.Get(Static.Interfaces.COLLECTION, "Items"));
     }
 
@@ -150,12 +150,12 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
      * @return The displayable label of this collection.
      */
     public String getLabel() {
-        return dBusCall("Get(Label)", () ->
+        return dBusCall("Get(Label)", getDBusPath(), () ->
                 properties.Get(Static.Interfaces.COLLECTION, "Label"));
     }
 
     public void setLabel(String value) {
-        dBusCall("Set(Label)", () -> {
+        dBusCall("Set(Label)", getDBusPath(), () -> {
             properties.Set(Static.Interfaces.COLLECTION, "Label", new Variant<>(value));
             return null;
         });
@@ -167,7 +167,7 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
      * @return Whether the collection is locked and must be authenticated by the client application.
      */
     public boolean isLocked() {
-        return dBusCall("Get(Locked)", () ->
+        return dBusCall("Get(Locked)", getDBusPath(), () ->
                 properties.Get(Static.Interfaces.COLLECTION, "Locked"));
     }
 
@@ -177,7 +177,7 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
      * @return The unix time when the collection was created.
      */
     public Long getCreated() {
-        var response = dBusCall("Get(Created)", () ->
+        var response = dBusCall("Get(Created)", getDBusPath(), () ->
                 properties.Get(Static.Interfaces.COLLECTION, "Created"));
         return null == response ? null : ((UInt64) response).longValue();
     }
@@ -188,7 +188,7 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
      * @return The unix time when the collection was last modified.
      */
     public Long getModified() {
-        var response = dBusCall("Get(Modified)", () ->
+        var response = dBusCall("Get(Modified)", getDBusPath(), () ->
                 properties.Get(Static.Interfaces.COLLECTION, "Modified"));
         return null == response ? null : ((UInt64) response).longValue();
     }

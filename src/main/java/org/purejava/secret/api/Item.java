@@ -66,7 +66,7 @@ public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item
      * @return Prompt   &mdash; A prompt dbuspath, or the special value '/' if no prompt is necessary.
      */
     public DBusPath delete() {
-        return dBusCall("Delete", () -> remote.Delete());
+        return dBusCall("Delete", getDBusPath(), () -> remote.Delete());
     }
 
     /**
@@ -80,7 +80,7 @@ public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item
             LOG.error("Cannot getSecret as required session is missing");
             return null;
         }
-        var secret = dBusCall("GetSecret", () -> remote.GetSecret(session));
+        var secret = dBusCall("GetSecret", getDBusPath(), () -> remote.GetSecret(session));
         if (null == secret) {
             return null;
         } else {
@@ -108,7 +108,7 @@ public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item
             LOG.error("Cannot setSecret as required secret is missing");
             return;
         }
-        dBusCall("SetSecret", () -> {
+        dBusCall("SetSecret", getDBusPath(), () -> {
             remote.SetSecret(secret);
             return null;
         });
@@ -120,7 +120,7 @@ public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item
      * @return Whether the item is locked and requires authentication, or not.
      */
     public boolean isLocked() {
-        return dBusCall("Get(Locked)", () ->
+        return dBusCall("Get(Locked)", getDBusPath(), () ->
                 properties.Get(Static.Interfaces.ITEM, "Locked"));
     }
 
@@ -130,7 +130,7 @@ public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item
      * @return The attributes of the item.
      */
     public Map<String, String> getAttributes() {
-        return dBusCall("Get(Attributes)", () ->
+        return dBusCall("Get(Attributes)", getDBusPath(), () ->
                 properties.Get(Static.Interfaces.ITEM, "Attributes"));
     }
 
@@ -140,7 +140,7 @@ public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item
      * @return The displayable label of this collection.
      */
     public String getLabel() {
-        return dBusCall("Get(Label)", () ->
+        return dBusCall("Get(Label)", getDBusPath(), () ->
                 properties.Get(Static.Interfaces.ITEM, "Label"));
     }
 
@@ -150,7 +150,7 @@ public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item
      * @return The unix time when the item was created.
      */
     public Long getCreated() {
-        var response = dBusCall("Get(Created)", () ->
+        var response = dBusCall("Get(Created)", getDBusPath(), () ->
                 properties.Get(Static.Interfaces.ITEM, "Created"));
         return null == response ? null : ((UInt64) response).longValue();
     }
@@ -161,7 +161,7 @@ public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item
      * @return The unix time when the item was last modified.
      */
     public Long getModified() {
-        var response = dBusCall("Get(Modified)", () ->
+        var response = dBusCall("Get(Modified)", getDBusPath(), () ->
                 properties.Get(Static.Interfaces.ITEM, "Modified"));
         return null == response ? null : ((UInt64) response).longValue();
     }

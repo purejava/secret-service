@@ -69,7 +69,7 @@ public class Service extends DBusLoggingHandler<org.purejava.secret.interfaces.S
      * result   &mdash; The object path of the session, if session was created.<br>
      */
     public Pair<Variant<ArrayList<Byte>>, DBusPath> openSession(String algorithm, Variant<?> input) {
-        return dBusCall("OpenSession", () -> remote.OpenSession(algorithm, input));
+        return dBusCall("OpenSession", getDBusPath(), () -> remote.OpenSession(algorithm, input));
     }
 
     /**
@@ -91,7 +91,7 @@ public class Service extends DBusLoggingHandler<org.purejava.secret.interfaces.S
      * prompt       &mdash; A prompt object if prompting is necessary, or '/' if no prompt was needed.<br>
      */
     public Pair<DBusPath, DBusPath> createCollection(Map<String, Variant<?>> properties, String alias) {
-        return dBusCall("CreateCollection", () -> remote.CreateCollection(properties, alias));
+        return dBusCall("CreateCollection", getDBusPath(), () -> remote.CreateCollection(properties, alias));
     }
 
     /**
@@ -120,7 +120,7 @@ public class Service extends DBusLoggingHandler<org.purejava.secret.interfaces.S
      * locked        &mdash; Items found that require authentication.<br>
      */
     public Pair<List<DBusPath>, List<DBusPath>> searchItems(Map<String, String> attributes) {
-        return dBusCall("SearchItems", () -> remote.SearchItems(attributes));
+        return dBusCall("SearchItems", getDBusPath(), () -> remote.SearchItems(attributes));
     }
 
     /**
@@ -138,7 +138,7 @@ public class Service extends DBusLoggingHandler<org.purejava.secret.interfaces.S
             LOG.error("Cannot unlock as required objects to unlock are missing");
             return null;
         }
-        return dBusCall("Unlock", () -> remote.Unlock(objects));
+        return dBusCall("Unlock", getDBusPath(), () -> remote.Unlock(objects));
     }
 
     /**
@@ -156,7 +156,7 @@ public class Service extends DBusLoggingHandler<org.purejava.secret.interfaces.S
             LOG.error("Cannot lock as required objects to lock are missing");
             return null;
         }
-        return dBusCall("Lock", () -> remote.Lock(objects));
+        return dBusCall("Lock", getDBusPath(), () -> remote.Lock(objects));
     }
 
     /**
@@ -175,7 +175,7 @@ public class Service extends DBusLoggingHandler<org.purejava.secret.interfaces.S
             LOG.error("Cannot getSecrets as required session is missing");
             return null;
         }
-        return dBusCall("GetSecrets", () -> remote.GetSecrets(items, session));
+        return dBusCall("GetSecrets", getDBusPath(), () -> remote.GetSecrets(items, session));
     }
 
     /**
@@ -189,7 +189,7 @@ public class Service extends DBusLoggingHandler<org.purejava.secret.interfaces.S
             LOG.error("Cannot readAlias as required name is missing");
             return null;
         }
-        return dBusCall("ReadAlias", () -> remote.ReadAlias(name));
+        return dBusCall("ReadAlias", getDBusPath(), () -> remote.ReadAlias(name));
     }
 
     /**
@@ -207,7 +207,7 @@ public class Service extends DBusLoggingHandler<org.purejava.secret.interfaces.S
             LOG.error("Cannot setAlias as required collection is missing");
             return;
         }
-        dBusCall("SetAlias", () -> {
+        dBusCall("SetAlias", getDBusPath(), () -> {
             remote.SetAlias(name, collection);
             return null;
         });
@@ -219,7 +219,7 @@ public class Service extends DBusLoggingHandler<org.purejava.secret.interfaces.S
      * @return A list of present collections.
      */
     public List<DBusPath> getCollections() {
-        return dBusCall("Get(Collections)", () ->
+        return dBusCall("Get(Collections)", getDBusPath(), () ->
                 properties.Get(Static.Interfaces.SERVICE, "Collections"));
     }
 

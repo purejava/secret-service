@@ -37,7 +37,7 @@ public abstract class DBusLoggingHandler<T extends DBusInterface> {
 
     protected abstract String getUnavailableMessage();
 
-    protected <R> R dBusCall(String operation, DBusOperation<R> action) {
+    protected <R> R dBusCall(String operation, String operator, DBusOperation<R> action) {
         if (!isUsable()) {
             LOG.error(getUnavailableMessage());
             return null;
@@ -45,7 +45,7 @@ public abstract class DBusLoggingHandler<T extends DBusInterface> {
         try {
             return action.call();
         } catch (Exception e) {
-            LOG.error("DBus error on calling {}: {}", operation, e.getMessage(), e);
+            LOG.error("DBus error on calling {} for {}: {}", operation, operator, e.getMessage(), e);
             return null;
         }
     }

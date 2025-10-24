@@ -55,7 +55,7 @@ public class Prompt extends DBusLoggingHandler<org.purejava.secret.interfaces.Pr
             LOG.error("Cannot prompt as required window_id is missing");
             return;
         }
-        dBusCall("Prompt", () -> {
+        dBusCall("Prompt", getDBusPath(), () -> {
             remote.Prompt(window_id);
             return null;
         });
@@ -65,7 +65,7 @@ public class Prompt extends DBusLoggingHandler<org.purejava.secret.interfaces.Pr
      * Dismiss the prompt.
      */
     public void dismiss() {
-        dBusCall("Dismiss", () -> {
+        dBusCall("Dismiss", getDBusPath(), () -> {
             remote.Dismiss();
             return null;
         });
