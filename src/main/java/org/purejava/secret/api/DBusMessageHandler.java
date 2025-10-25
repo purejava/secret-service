@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T> the D-Bus interface type implemented by the remote object.
  */
-public abstract class DBusLoggingHandler<T extends DBusInterface> {
+public abstract class DBusMessageHandler<T extends DBusInterface> {
 
     protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
@@ -26,7 +26,7 @@ public abstract class DBusLoggingHandler<T extends DBusInterface> {
     protected T remote;
     protected Properties properties;
 
-    protected DBusLoggingHandler(String busName, String dbusPath, Class<T> iface) {
+    protected DBusMessageHandler(String busName, String dbusPath, Class<T> iface) {
         if (null == dbusPath) {
             throw new IllegalArgumentException("DBusPath must not be null");
         }

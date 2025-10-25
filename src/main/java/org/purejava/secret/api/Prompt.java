@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class Prompt extends DBusLoggingHandler<org.purejava.secret.interfaces.Prompt> {
+public class Prompt extends DBusMessageHandler<org.purejava.secret.interfaces.Prompt> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Prompt.class);
     private static final String PROMPT_NOT_AVAILABLE = "Prompt not available on DBus";

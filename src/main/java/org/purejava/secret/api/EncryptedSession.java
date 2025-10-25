@@ -3,7 +3,7 @@ package org.purejava.secret.api;
 import at.favre.lib.hkdf.HKDF;
 import org.freedesktop.dbus.DBusPath;
 import org.freedesktop.dbus.types.Variant;
-import org.purejava.secret.api.DBusLoggingHandler.DBusResult;
+import org.purejava.secret.api.DBusMessageHandler.DBusResult;
 
 import javax.crypto.*;
 import javax.crypto.interfaces.DHPublicKey;

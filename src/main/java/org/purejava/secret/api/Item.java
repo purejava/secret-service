@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item> {
+public class Item extends DBusMessageHandler<org.purejava.secret.interfaces.Item> {
     private static final Logger LOG = LoggerFactory.getLogger(Item.class);
     private static final String ITEM_NOT_AVAILABLE = "Item not available on DBus";
     private static final DBusConnection connection;

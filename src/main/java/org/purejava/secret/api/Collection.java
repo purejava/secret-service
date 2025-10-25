@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class Collection extends DBusLoggingHandler<org.purejava.secret.interfaces.Collection> {
+public class Collection extends DBusMessageHandler<org.purejava.secret.interfaces.Collection> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Collection.class);
     private static final String LABEL = "org.freedesktop.Secret.Collection.Label";

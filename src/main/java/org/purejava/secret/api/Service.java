@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class Service extends DBusLoggingHandler<org.purejava.secret.interfaces.Service> {
+public class Service extends DBusMessageHandler<org.purejava.secret.interfaces.Service> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Service.class);
     private static final String SERVICE_NOT_AVAILABLE = "Secret Service not available on DBus";
