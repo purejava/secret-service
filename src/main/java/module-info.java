@@ -7,4 +7,6 @@ module org.purejava.secret {
     exports org.purejava.secret.api.handlers;
     exports org.purejava.secret.api.errors;
     exports org.purejava.secret.api;
+
+    opens org.purejava.secret.api to org.freedesktop.dbus;
 }
