@@ -151,6 +151,12 @@ tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
 }
 
+tasks.withType<PublishToMavenLocal>().configureEach {
+    if (publication.name == "centralPortal") {
+        enabled = false
+    }
+}
+
 tasks.withType<Javadoc> {
     isFailOnError = false
     if (JavaVersion.current().isJava9Compatible) {
