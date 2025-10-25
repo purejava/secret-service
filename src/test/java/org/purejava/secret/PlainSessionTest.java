@@ -20,10 +20,10 @@ public class PlainSessionTest {
         Service service = new Service();
         byte[] bl;
         var response = service.openSession(EncryptedSession.Algorithm.PLAIN, new Variant<>(""));
-        Variant<?> reaponsea = response.a;
+        Variant<?> reaponsea = response.value().a;
         Object value = reaponsea.getValue();
         if (value instanceof ArrayList) {
-            ArrayList<Byte> list = response.a.getValue();
+            ArrayList<Byte> list = response.value().a.getValue();
             bl = new byte[list.size()];
             IntStream.range(0, list.size()).forEach(i -> bl[i] = list.get(i));
         } else if (value instanceof String) {
@@ -31,7 +31,7 @@ public class PlainSessionTest {
         } else {
             throw new IllegalStateException("Dbus returned unexpected result for openSession method call: " + value.getClass().getName());
         }
-        DBusPath session = response.b;
+        DBusPath session = response.value().b;
         assertEquals(0, bl.length);
         assertFalse(session.getPath().isEmpty());
     }

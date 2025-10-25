@@ -133,7 +133,7 @@ public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item
      */
     public DBusResult<Map<String, String>> getAttributes() {
 
-        DBusResult<Variant<?>> result = dBusCall(
+        DBusResult<Map<String, String>> result = dBusCall(
                 "Get(Attributes)",
                 getDBusPath(),
                 () -> properties.Get(Static.Interfaces.ITEM, "Attributes")
@@ -143,11 +143,7 @@ public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item
             return new DBusResult<>(null, result.error());
         }
 
-        @SuppressWarnings("unchecked")
-        Variant<Map<String, String>> variant = (Variant<Map<String, String>>) result.value();
-        Map<String, String> attributes = variant.getValue();
-
-        return new DBusResult<>(attributes, null);
+        return new DBusResult<>(result.value(), null);
     }
 
     /**
@@ -157,7 +153,7 @@ public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item
      */
     public DBusResult<String> getLabel() {
 
-        DBusResult<Variant<?>> result = dBusCall(
+        DBusResult<String> result = dBusCall(
                 "Get(Label)",
                 getDBusPath(),
                 () -> properties.Get(Static.Interfaces.ITEM, "Label")
@@ -168,10 +164,7 @@ public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item
             return new DBusResult<>(null, result.error());
         }
 
-        @SuppressWarnings("unchecked")
-        String label = ((Variant<String>) result.value()).getValue();
-
-        return new DBusResult<>(label, null);
+        return new DBusResult<>(result.value(), null);
     }
 
     /**
@@ -179,9 +172,9 @@ public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item
      *
      * @return The unix time when the item was created, in case the DBus call succeeded, the DBus error otherwise.
      */
-    public DBusResult<Long> getCreated() {
+    public DBusResult<UInt64> getCreated() {
 
-        DBusResult<Variant<?>> result = dBusCall(
+        DBusResult<UInt64> result = dBusCall(
                 "Get(Created)",
                 getDBusPath(),
                 () -> properties.Get(Static.Interfaces.ITEM, "Created")
@@ -191,11 +184,7 @@ public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item
             return new DBusResult<>(null, result.error());
         }
 
-        @SuppressWarnings("unchecked")
-        Variant<UInt64> variant = (Variant<UInt64>) result.value();
-        Long created = variant.getValue().longValue();
-
-        return new DBusResult<>(created, null);
+        return new DBusResult<>(result.value(), null);
     }
 
     /**
@@ -203,9 +192,9 @@ public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item
      *
      * @return The unix time when the item was last modified, in case the DBus call succeeded, the DBus error otherwise.
      */
-    public DBusResult<Long> getModified() {
+    public DBusResult<UInt64> getModified() {
 
-        DBusResult<Variant<?>> result = dBusCall(
+        DBusResult<UInt64> result = dBusCall(
                 "Get(Modified)",
                 getDBusPath(),
                 () -> properties.Get(Static.Interfaces.ITEM, "Modified")
@@ -215,11 +204,7 @@ public class Item extends DBusLoggingHandler<org.purejava.secret.interfaces.Item
             return new DBusResult<>(null, result.error());
         }
 
-        @SuppressWarnings("unchecked")
-        Variant<UInt64> variant = (Variant<UInt64>) result.value();
-        Long modified = variant.getValue().longValue();
-
-        return new DBusResult<>(modified, null);
+        return new DBusResult<>(result.value(), null);
     }
 
     public String getDBusPath() {

@@ -145,7 +145,7 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
      */
     public DBusResult<List<DBusPath>> getItems() {
 
-        DBusResult<Variant<?>> result = dBusCall(
+        DBusResult<List<DBusPath>> result = dBusCall(
                 "Get(Items)",
                 getDBusPath(),
                 () -> properties.Get(Static.Interfaces.COLLECTION, "Items")
@@ -156,10 +156,7 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
             return new DBusResult<>(null, result.error());
         }
 
-        @SuppressWarnings("unchecked")
-        List<DBusPath> paths = ((Variant<List<DBusPath>>) result.value()).getValue();
-
-        return new DBusResult<>(paths, null);
+        return new DBusResult<>(result.value(), null);
     }
 
     /**
@@ -169,7 +166,7 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
      */
     public DBusResult<String> getLabel() {
 
-        DBusResult<Variant<?>> result = dBusCall(
+        DBusResult<String> result = dBusCall(
                 "Get(Label)",
                 getDBusPath(),
                 () -> properties.Get(Static.Interfaces.COLLECTION, "Label")
@@ -180,10 +177,7 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
             return new DBusResult<>(null, result.error());
         }
 
-        @SuppressWarnings("unchecked")
-        String label = ((Variant<String>) result.value()).getValue();
-
-        return new DBusResult<>(label, null);
+        return new DBusResult<>(result.value(), null);
     }
 
     public void setLabel(String value) {
@@ -209,9 +203,9 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
      *
      * @return The unix time when the collection was created, in case the DBus call succeeded, the DBus error otherwise.
      */
-    public DBusResult<Long> getCreated() {
+    public DBusResult<UInt64> getCreated() {
 
-        DBusResult<Variant<?>> result = dBusCall(
+        DBusResult<UInt64> result = dBusCall(
                 "Get(Created)",
                 getDBusPath(),
                 () -> properties.Get(Static.Interfaces.COLLECTION, "Created")
@@ -221,11 +215,7 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
             return new DBusResult<>(null, result.error());
         }
 
-        @SuppressWarnings("unchecked")
-        Variant<UInt64> variant = (Variant<UInt64>) result.value();
-        Long created = variant.getValue().longValue();
-
-        return new DBusResult<>(created, null);
+        return new DBusResult<>(result.value(), null);
     }
 
     /**
@@ -233,9 +223,9 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
      *
      * @return The unix time when the collection was last modified, in case the DBus call succeeded, the DBus error otherwise.
      */
-    public DBusResult<Long> getModified() {
+    public DBusResult<UInt64> getModified() {
 
-        DBusResult<Variant<?>> result = dBusCall(
+        DBusResult<UInt64> result = dBusCall(
                 "Get(Modified)",
                 getDBusPath(),
                 () -> properties.Get(Static.Interfaces.COLLECTION, "Modified")
@@ -245,11 +235,7 @@ public class Collection extends DBusLoggingHandler<org.purejava.secret.interface
             return new DBusResult<>(null, result.error());
         }
 
-        @SuppressWarnings("unchecked")
-        Variant<UInt64> variant = (Variant<UInt64>) result.value();
-        Long modified = variant.getValue().longValue();
-
-        return new DBusResult<>(modified, null);
+        return new DBusResult<>(result.value(), null);
     }
 
     public String getDBusPath() {

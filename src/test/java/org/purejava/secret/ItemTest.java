@@ -43,8 +43,8 @@ public class ItemTest {
         assertTrue(sessionOpened);
         var props = Collection.createProperties(NAME);
         var pair = context.service.createCollection(props, "");
-        var path = pair.a.getPath();
-        var promtp = pair.b;
+        var path = pair.value().a.getPath();
+        var promtp = pair.value().b;
         assertEquals("/", path);
         var result = Util.promptAndGetResultAsDBusPath(promtp);
         assertEquals(COLLECTION_PATH, result.getPath());
@@ -55,10 +55,10 @@ public class ItemTest {
         var itemProps = Item.createProperties("HelloItem", attribs);
         var secret = session.encrypt("passwd");
         pair = myCollection.createItem(itemProps, secret, false);
-        assertTrue(pair.a.getPath().startsWith(COLLECTION_PATH + "/"));
+        assertTrue(pair.value().a.getPath().startsWith(COLLECTION_PATH + "/"));
         var found = myCollection.searchItems(attribs);
-        assertTrue(found.getFirst().getPath().startsWith(COLLECTION_PATH + "/"));
-        var relevantPath = found.getFirst().getPath();
+        assertTrue(found.value().getFirst().getPath().startsWith(COLLECTION_PATH + "/"));
+        var relevantPath = found.value().getFirst().getPath();
         var newSecret = new Item(new DBusPath(relevantPath)).getSecret(session.getSession());
         var fin = session.decrypt(newSecret);
         assertEquals("passwd", new String(fin));
@@ -67,12 +67,12 @@ public class ItemTest {
         newSecret = new Item(new DBusPath(relevantPath)).getSecret(session.getSession());
         fin = session.decrypt(newSecret);
         assertEquals("PASSWD", new String(fin));
-        assertEquals("HelloItem", new Item(new DBusPath(relevantPath)).getLabel());
+        assertEquals("HelloItem", new Item(new DBusPath(relevantPath)).getLabel().value());
         var promptRequired = new Item(new DBusPath(relevantPath)).delete();
-        assertEquals("/", promptRequired.getPath());
+        assertEquals("/", promptRequired.value().getPath());
         found = myCollection.searchItems(attribs);
-        assertEquals(0, found.size());
+        assertEquals(0, found.value().size());
         var dBusPath = myCollection.delete();
-        assertEquals("/", dBusPath.getPath());
+        assertEquals("/", dBusPath.value().getPath());
     }
 }

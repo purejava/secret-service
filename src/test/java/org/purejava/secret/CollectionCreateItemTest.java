@@ -79,8 +79,8 @@ public class CollectionCreateItemTest {
         found = myCollection.getItems();
         assertEquals(1, found.value().size());
         assertTrue(found.value().getFirst().getPath().startsWith(COLLECTION_PATH + "/"));
-        assertTrue(myCollection.getCreated().value() > currentTime);
-        assertTrue(myCollection.getModified().value() >= myCollection.getCreated().value());
+        assertTrue(myCollection.getCreated().value().longValue() > currentTime);
+        assertTrue(myCollection.getModified().value().longValue() >= myCollection.getCreated().value().longValue());
         var serviceItems = context.service.searchItems(attribs);
         assertEquals(serviceItems.value().a.getFirst().getPath(), found.value().getFirst().getPath());
         var dBusPath = myCollection.delete();

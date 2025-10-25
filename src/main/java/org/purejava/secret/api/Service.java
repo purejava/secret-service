@@ -231,7 +231,7 @@ public class Service extends DBusLoggingHandler<org.purejava.secret.interfaces.S
      */
     public DBusResult<List<DBusPath>> getCollections() {
 
-        DBusResult<Variant<?>> result = dBusCall(
+        DBusResult<List<DBusPath>> result = dBusCall(
                 "Get(Collections)",
                 getDBusPath(),
                 () -> properties.Get(Static.Interfaces.SERVICE, "Collections")
@@ -242,10 +242,7 @@ public class Service extends DBusLoggingHandler<org.purejava.secret.interfaces.S
             return new DBusResult<>(null, result.error());
         }
 
-        @SuppressWarnings("unchecked")
-        List<DBusPath> paths = ((Variant<List<DBusPath>>) result.value()).getValue();
-
-        return new DBusResult<>(paths, null);
+        return new DBusResult<>(result.value(), null);
     }
 
     public String getDBusPath() {

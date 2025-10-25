@@ -27,7 +27,7 @@ public class ServiceTest {
     @DisplayName("List collection(s)")
     void listCollections() {
         var collections = context.service.getCollections();
-        List<String> paths = collections.stream()
+        List<String> paths = collections.value().stream()
                 .map(DBusPath::getPath)
                 .toList();
         assertTrue(List.of(
@@ -43,8 +43,8 @@ public class ServiceTest {
     void createCollectionCanceled() {
         var props = Collection.createProperties("TESTmyCollection-dismissed");
         var pair = context.service.createCollection(props, "");
-        var path = pair.a.getPath();
-        var promtp = pair.b;
+        var path = pair.value().a.getPath();
+        var promtp = pair.value().b;
         assertEquals("/", path);
         var result = Util.promptAndGetResultAsDBusPath(promtp);
         assertEquals("/", result.getPath());
@@ -63,8 +63,8 @@ public class ServiceTest {
         });
         var props = Collection.createProperties(NAME);
         var pair = context.service.createCollection(props, "");
-        var path = pair.a.getPath();
-        var promtp = pair.b;
+        var path = pair.value().a.getPath();
+        var promtp = pair.value().b;
         assertEquals("/", path);
         var result = Util.promptAndGetResultAsDBusPath(promtp);
         assertEquals(COLLECTION_PATH, result.getPath());
@@ -73,12 +73,12 @@ public class ServiceTest {
         assertTrue(handlerCalled.get());
         assertEquals(COLLECTION_PATH, handlerCollectionPath[0].getPath());
         var label = myCollection.getLabel();
-        assertEquals(NAME, label);
+        assertEquals(NAME, label.value());
         String newLabel = "testlabel";
         myCollection.setLabel(newLabel);
         label = myCollection.getLabel();
-        assertEquals("testlabel", label);
+        assertEquals("testlabel", label.value());
         var dBusPath = myCollection.delete();
-        assertEquals("/", dBusPath.getPath());
+        assertEquals("/", dBusPath.value().getPath());
     }
 }
