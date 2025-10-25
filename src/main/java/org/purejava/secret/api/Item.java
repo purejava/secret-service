@@ -207,6 +207,16 @@ public class Item extends DBusMessageHandler<org.purejava.secret.interfaces.Item
         return new DBusResult<>(result.value(), null);
     }
 
+    /**
+     * Get the DBusPath of the collection, the item is stored in.
+     *
+     * @return The DBusPath.
+     */
+    public DBusPath getCollectionPath() {
+        int lastSlash = getDBusPath().lastIndexOf('/');
+        return new DBusPath(getDBusPath().substring(0, lastSlash));
+    }
+
     public String getDBusPath() {
         return path.getPath();
     }

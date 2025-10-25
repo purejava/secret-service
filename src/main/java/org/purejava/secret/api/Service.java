@@ -58,6 +58,57 @@ public class Service extends DBusMessageHandler<org.purejava.secret.interfaces.S
     }
 
     /**
+     * Test, whether Secret Service is available on DBus.
+     *
+     * @return True, when available, false otherwise.
+     */
+    public boolean isAvailable() {
+        return isUsable();
+    }
+
+    /**
+     * Test, whether there is a default collection available on DBus.
+
+     * @return True, when available, false otherwise.
+     */
+    public boolean hasDefaultCollection() {
+        return !new Collection(new DBusPath(Static.DBusPath.DEFAULT_COLLECTION)).getDBusPath().equals("/");
+    }
+
+    /**
+     * Takes the DBusPath of an item, checks, whether it's locked and unlocks it, when needed.
+     * Does the same for the collection, the item is stored in to make sure, that the item
+     * is accessible.
+     *
+     * @param item The item to be unlocked.
+     */
+    public void ensureUnlocked(DBusPath item) {
+        var collectinPath = new Item(item).getCollectionPath();
+        var collection = new Collection(collectinPath);
+        var containedItem = new Item(item);
+        var statusCollection = collection.isLocked();
+        var statusItem = containedItem.isLocked();
+        assert (statusCollection.isSuccess() && statusItem.isSuccess());
+        if (statusCollection.value() || statusItem.value()) {
+            List<DBusPath> lockable = new ArrayList<>();
+            lockable.add(collectinPath);
+            lockable.add(item);
+            var result = unlock(lockable);
+            if (result.isSuccess()) {
+                var resultValue = result.value().b;
+                if ("/".equals(resultValue.getPath())) {
+                    LOG.debug("The collection {} and item {} were unlocked without a prompt", collectinPath.getPath(), item.getPath());
+                } else {
+                    var unlocked = Util.promptAndGetResultAsArrayList(resultValue);
+                    for (DBusPath p : unlocked) {
+                        LOG.debug("Object {} was unlocked", p.getPath());
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Open a unique session for the caller application.
      *
      * @param algorithm The algorithm the caller wishes to use.

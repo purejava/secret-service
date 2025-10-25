@@ -4,6 +4,8 @@ import at.favre.lib.hkdf.HKDF;
 import org.freedesktop.dbus.DBusPath;
 import org.freedesktop.dbus.types.Variant;
 import org.purejava.secret.api.DBusMessageHandler.DBusResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.crypto.*;
 import javax.crypto.interfaces.DHPublicKey;
@@ -21,6 +23,7 @@ import java.util.ArrayList;
 import java.util.stream.IntStream;
 
 public class EncryptedSession {
+    private static final Logger LOG = LoggerFactory.getLogger(EncryptedSession.class);
     public static final int PRIVATE_VALUE_BITS = 1024;
     public static final int AES_BITS = 128;
     private final Service service;
@@ -46,6 +49,21 @@ public class EncryptedSession {
 
     static private int toBytes(int bits) {
         return bits / 8;
+    }
+
+    public boolean setupEncryptedSession() {
+        try {
+            initialize();
+            var sessionOpened = openSession();
+            generateSessionKey();
+            return sessionOpened;
+        } catch (InvalidAlgorithmParameterException |
+                 NoSuchAlgorithmException |
+                 InvalidKeySpecException |
+                 InvalidKeyException e) {
+            LOG.error("Failed to setup encrypted session");
+            return false;
+        }
     }
 
     public void initialize() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
