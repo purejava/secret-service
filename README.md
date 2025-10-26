@@ -7,6 +7,9 @@
 
 A Java library for managing secrets on Linux using the secret service DBus interface
 
+# Specification
+The library implements the [Secret Service API Draft 0.2](https://specifications.freedesktop.org/secret-service-spec/latest/), paublished on 31st of August 2025.
+
 # Dependency
 Add `secret-service` as a dependency to your project.
 
@@ -23,6 +26,9 @@ implementation group: 'org.purejava', name: 'secret-service', version: '1.0.0'
    <version>1.0.0</version>
 </dependency>
 ```
+
+# Documentation
+For documentation please take a look at the [Wiki](https://github.com/purejava/secret-service/wiki).
 
 # Donation
 It took me about a month to develop and test this library. You can use it for free. If you like this project, why not buy me a cup of coffee?
