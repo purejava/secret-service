@@ -23,6 +23,7 @@ public class Collection extends DBusMessageHandler<org.purejava.secret.interface
     private static final String LABEL = "org.freedesktop.Secret.Collection.Label";
     private static final String COLLECTION_NOT_AVAILABLE = "Collection not available on DBus";
     private static final DBusConnection connection;
+    private static DBusPath defaultCollection;
 
     private final List<ItemCreatedHandler> itemCreatedHandlers = new CopyOnWriteArrayList<>();
     private final List<ItemChangedHandler> itemChangedHandlers = new CopyOnWriteArrayList<>();
@@ -31,6 +32,11 @@ public class Collection extends DBusMessageHandler<org.purejava.secret.interface
 
     static {
         connection = ConnectionManager.getInstance().getConnection();
+        var service = new Service();
+        var getName = service.readAlias("default");
+        if (getName.isSuccess()) {
+            defaultCollection = getName.value();
+        }
     }
 
     public Collection(DBusPath path) {
@@ -243,17 +249,20 @@ public class Collection extends DBusMessageHandler<org.purejava.secret.interface
     }
 
     private void notifyOnItemCreated(org.purejava.secret.interfaces.Collection.ItemCreated signal) {
-        if (signal.item.getPath().startsWith(getDBusPath())) {
+        if (signal.item.getPath().startsWith(getDBusPath()) ||
+                signal.item.getPath().startsWith(defaultCollection.getPath())) {
             itemCreatedHandlers.forEach(handler -> handler.onItemCreated(signal.item));
         }
     }
     private void notifyOnItemChanged(org.purejava.secret.interfaces.Collection.ItemChanged signal) {
-        if (signal.item.getPath().startsWith(getDBusPath())) {
+        if (signal.item.getPath().startsWith(getDBusPath()) ||
+            signal.item.getPath().startsWith(defaultCollection.getPath())) {
             itemChangedHandlers.forEach(handler -> handler.onItemChanged(signal.item));
         }
     }
     private void notifyOnItemDeleted(org.purejava.secret.interfaces.Collection.ItemDeleted signal) {
-        if (signal.item.getPath().startsWith(getDBusPath())) {
+        if (signal.item.getPath().startsWith(getDBusPath()) ||
+                signal.item.getPath().startsWith(defaultCollection.getPath())) {
             itemDeletedHandlers.forEach(handler -> handler.onItemDeleted(signal.item));
         }
     }
