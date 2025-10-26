@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "org.purejava"
-version = "1.0.0"
+version = "1.0.1-SNAPSHOT"
 description = "A Java library for managing secrets on Linux using the secret service DBus interface"
 
 val releaseGradlePluginToken: String = System.getenv("RELEASE_GRADLE_PLUGIN_TOKEN") ?: ""
@@ -118,7 +118,7 @@ centralPortal {
         }
         issueManagement {
             system.set("GitHub Issues")
-            url.set("https://github.com/secret-service/issues")
+            url.set("https://github.com/purejava/secret-service/issues")
         }
     }
 }
