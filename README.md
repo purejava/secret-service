@@ -24,5 +24,10 @@ implementation group: 'org.purejava', name: 'secret-service', version: '1.0.0'
 </dependency>
 ```
 
+# Donation
+It took me about a month to develop and test this library. You can use it for free. If you like this project, why not buy me a cup of coffee?
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/donate?hosted_button_id=XVX9ZM7WE4ANL)
+
 # Copyright
 Copyright (C) 2025 Ralph Plawetzki
