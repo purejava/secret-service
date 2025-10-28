@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.IntStream;
 
 public class EncryptedSession {
@@ -91,14 +92,23 @@ public class EncryptedSession {
         BigInteger ya = ((DHPublicKey) publicKey).getY();
 
         // open session with "Client DH pub key as an array of bytes" without prime or generator
-        DBusResult<Pair<Variant<ArrayList<Byte>>, DBusPath>> osResponse = service.openSession(
+        DBusResult<Pair<Variant<?>, DBusPath>> osResponse = service.openSession(
                 Algorithm.DH_IETF1024_SHA256_AES128_CBC_PKCS7, new Variant<>(ya.toByteArray()));
 
         // transform peer's raw Y to a public key
         if (osResponse.isSuccess()) {
-            ArrayList<Byte> list = osResponse.value().a.getValue();
-            yb = new byte[list.size()];
-            IntStream.range(0, list.size()).forEach(i -> yb[i] = list.get(i));
+            Variant<?> reaponsea = osResponse.value().a;
+            Object value = reaponsea.getValue();
+            if (value instanceof ArrayList) {
+                @SuppressWarnings("unchecked")
+                List<Byte> list = (ArrayList<Byte>) osResponse.value().a.getValue();
+                yb = new byte[list.size()];
+                IntStream.range(0, list.size()).forEach(i -> yb[i] = list.get(i));
+            } else if (value instanceof byte[]) {
+                yb = (byte[]) osResponse.value().a.getValue();
+            } else {
+                throw new IllegalStateException("Dbus returned unexpected result for openSession method call: " + value.getClass().getName());
+            }
             session = osResponse.value().b;
             return true;
         } else {

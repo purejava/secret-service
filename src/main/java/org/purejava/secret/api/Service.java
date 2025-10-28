@@ -121,7 +121,7 @@ public class Service extends DBusMessageHandler<org.purejava.secret.interfaces.S
      * <br>
      * the DBus error otherwise.
      */
-    public DBusResult<Pair<Variant<ArrayList<Byte>>, DBusPath>> openSession(String algorithm, Variant<?> input) {
+    public DBusResult<Pair<Variant<?>, DBusPath>> openSession(String algorithm, Variant<?> input) {
         return dBusCall("OpenSession", getDBusPath(), () -> remote.OpenSession(algorithm, input));
     }
 

@@ -8,6 +8,7 @@ import org.purejava.secret.api.EncryptedSession;
 import org.purejava.secret.api.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,7 +24,8 @@ public class PlainSessionTest {
         Variant<?> reaponsea = response.value().a;
         Object value = reaponsea.getValue();
         if (value instanceof ArrayList) {
-            ArrayList<Byte> list = response.value().a.getValue();
+            @SuppressWarnings("unchecked")
+            List<Byte> list = (ArrayList<Byte>) response.value().a.getValue();
             bl = new byte[list.size()];
             IntStream.range(0, list.size()).forEach(i -> bl[i] = list.get(i));
         } else if (value instanceof String) {

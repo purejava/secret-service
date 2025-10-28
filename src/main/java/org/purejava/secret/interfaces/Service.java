@@ -9,7 +9,6 @@ import org.freedesktop.dbus.types.Variant;
 import org.purejava.secret.api.Pair;
 import org.purejava.secret.api.Secret;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -75,7 +74,7 @@ public interface Service extends DBusInterface {
      * <br>
      * result   &mdash; The object path of the session, if session was created.<br>
      */
-    Pair<Variant<ArrayList<Byte>>, DBusPath> OpenSession(String algorithm, Variant<?> input);
+    Pair<Variant<?>, DBusPath> OpenSession(String algorithm, Variant<?> input);
 
     /**
      * Create a new collection with the specified properties.
