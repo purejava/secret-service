@@ -88,11 +88,14 @@ public class Service extends DBusMessageHandler<org.purejava.secret.interfaces.S
         var containedItem = new Item(item);
         var statusCollection = collection.isLocked();
         var statusItem = containedItem.isLocked();
-        assert (statusCollection.isSuccess() && statusItem.isSuccess());
-        if (statusCollection.value() || statusItem.value()) {
-            List<DBusPath> lockable = new ArrayList<>();
+        List<DBusPath> lockable = new ArrayList<>();
+        if (statusCollection.isSuccess() && Boolean.TRUE.equals(statusCollection.value())) {
             lockable.add(collectinPath);
+        }
+        if (statusItem.isSuccess() && Boolean.TRUE.equals(statusItem.value())) {
             lockable.add(item);
+        }
+        if (!lockable.isEmpty()) {
             var result = unlock(lockable);
             if (result.isSuccess()) {
                 var resultValue = result.value().b;
