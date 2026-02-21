@@ -44,11 +44,11 @@ public class EncryptedSession {
         this.service = service;
     }
 
-    static private BigInteger fromBinary(byte[] bytes) {
+    private static BigInteger fromBinary(byte[] bytes) {
         return new BigInteger(1, bytes);
     }
 
-    static private int toBytes(int bits) {
+    private static int toBytes(int bits) {
         return bits / 8;
     }
 
@@ -167,7 +167,9 @@ public class EncryptedSession {
         random.nextBytes(salt);
         IvParameterSpec ivSpec = new IvParameterSpec(salt);
 
-        Cipher cipher = Cipher.getInstance(Algorithm.AES_CBC_PKCS5);
+        // AES/CBC required by Secret Service protocol (dh-ietf1024-sha256-aes128-cbc-pkcs7)
+        // GCM cannot be used due to interoperability requirements
+        Cipher cipher = Cipher.getInstance(Algorithm.AES_CBC_PKCS5); // NOSONAR
         cipher.init(Cipher.ENCRYPT_MODE, sessionKey, ivSpec);
 
         String contentType = Secret.createContentType(charset);
@@ -189,7 +191,9 @@ public class EncryptedSession {
         }
 
         IvParameterSpec ivSpec = new IvParameterSpec(secret.getSecretParameters());
-        Cipher cipher = Cipher.getInstance(Algorithm.AES_CBC_PKCS5);
+        // AES/CBC required by Secret Service protocol (dh-ietf1024-sha256-aes128-cbc-pkcs7)
+        // GCM cannot be used due to interoperability requirements
+        Cipher cipher = Cipher.getInstance(Algorithm.AES_CBC_PKCS5); // NOSONAR
         cipher.init(Cipher.DECRYPT_MODE, sessionKey, ivSpec);
         final byte[] decrypted = cipher.doFinal(secret.getSecretValue());
         try {
@@ -219,6 +223,11 @@ public class EncryptedSession {
     }
 
     public static class Algorithm {
+
+        private Algorithm() {
+            // prevent instantiation
+        }
+
         public static final String PLAIN = "plain";
         public static final String DH_IETF1024_SHA256_AES128_CBC_PKCS7 = "dh-ietf1024-sha256-aes128-cbc-pkcs7";
         public static final String DIFFIE_HELLMAN = "DH";
@@ -229,10 +238,18 @@ public class EncryptedSession {
 
     public static class RFC_7296 {
 
+        private RFC_7296() {
+            // prevent instantiation
+        }
+
         /**
          * RFC 7296: https://datatracker.ietf.org/doc/html/rfc7296#appendix-B.2
          */
         public static class SecondOakleyGroup {
+
+            private SecondOakleyGroup() {
+                // prevent instantiation
+            }
 
             public static final byte[] PRIME = new byte[]{
                     (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,

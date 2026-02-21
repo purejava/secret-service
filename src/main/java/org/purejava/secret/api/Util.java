@@ -10,6 +10,10 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class Util {
 
+    private Util() {
+            // prevent instantiation
+    }
+
     public static boolean varIsEmpty(String v) {
         return v == null || v.isBlank();
     }
@@ -96,13 +100,11 @@ public class Util {
 
         Object value = variant.getValue();
 
-        if (value instanceof List<?> list) {
-            // Ensure all elements are DBusPath
-            if (!list.isEmpty() && list.getFirst() instanceof DBusPath) {
-                @SuppressWarnings("unchecked")
-                List<DBusPath> dbusPaths = (List<DBusPath>) list;
-                return new ArrayList<>(dbusPaths);
-            }
+        // Ensure all elements are DBusPath
+        if (value instanceof List<?> list && !list.isEmpty() && list.getFirst() instanceof DBusPath) {
+            @SuppressWarnings("unchecked")
+            List<DBusPath> dbusPaths = (List<DBusPath>) list;
+            return new ArrayList<>(dbusPaths);
         }
 
         throw new IllegalStateException("Unexpected result type from Prompt: " + value.getClass());

@@ -6,11 +6,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ServiceDefaultCollectionTest {
+class ServiceDefaultCollectionTest {
     private Context context;
 
     @BeforeEach
-    public void beforeEach() {
+    void beforeEach() {
         context = new Context();
         context.ensureService();
     }

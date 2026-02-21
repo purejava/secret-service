@@ -19,7 +19,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Collection extends DBusMessageHandler<org.purejava.secret.interfaces.Collection> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Collection.class);
+    private static final Logger COLLECTION_LOG = LoggerFactory.getLogger(Collection.class);
     private static final String LABEL = "org.freedesktop.Secret.Collection.Label";
     private static final String COLLECTION_NOT_AVAILABLE = "Collection not available on DBus";
     private static final DBusConnection connection;
@@ -59,7 +59,7 @@ public class Collection extends DBusMessageHandler<org.purejava.secret.interface
             Collection.connection.addSigHandler(org.purejava.secret.interfaces.Collection.ItemDeleted.class, this::notifyOnItemDeleted);
 
         } catch (DBusException e) {
-            LOG.error(e.toString(), e.getCause());
+            COLLECTION_LOG.error(e.toString(), e.getCause());
         }
     }
 
@@ -138,7 +138,7 @@ public class Collection extends DBusMessageHandler<org.purejava.secret.interface
      */
     public DBusResult<Pair<DBusPath, DBusPath>> createItem(Map<String, Variant<?>> properties, Secret secret, boolean replace) {
         if (null == secret) {
-            LOG.error("Cannot createItem as required secret is missing");
+            COLLECTION_LOG.error("Cannot createItem as required secret is missing");
             return null;
         }
         return dBusCall("CreateItem", getDBusPath(), () -> remote.CreateItem(properties, secret, replace));

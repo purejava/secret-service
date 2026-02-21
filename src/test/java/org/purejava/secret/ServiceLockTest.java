@@ -13,13 +13,13 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ServiceLockTest {
+class ServiceLockTest {
     final String NAME = "TESTLock";
     final String COLLECTION_PATH = "/org/freedesktop/secrets/collection/TESTLock";
     private Context context;
 
     @BeforeEach
-    public void beforeEach() {
+    void beforeEach() {
         context = new Context();
         context.ensureService();
     }

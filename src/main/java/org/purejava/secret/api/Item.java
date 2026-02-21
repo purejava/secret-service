@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Item extends DBusMessageHandler<org.purejava.secret.interfaces.Item> {
-    private static final Logger LOG = LoggerFactory.getLogger(Item.class);
+    private static final Logger ITEM_LOG = LoggerFactory.getLogger(Item.class);
     private static final String ITEM_NOT_AVAILABLE = "Item not available on DBus";
     private static final DBusConnection connection;
 
@@ -42,7 +42,7 @@ public class Item extends DBusMessageHandler<org.purejava.secret.interfaces.Item
                     Properties.class);
 
         } catch (DBusException e) {
-            LOG.error(e.toString(), e.getCause());
+            ITEM_LOG.error(e.toString(), e.getCause());
         }
     }
 
@@ -78,7 +78,7 @@ public class Item extends DBusMessageHandler<org.purejava.secret.interfaces.Item
      */
     public Secret getSecret(DBusPath session) {
         if (null == session) {
-            LOG.error("Cannot getSecret as required session is missing");
+            ITEM_LOG.error("Cannot getSecret as required session is missing");
             return null;
         }
         var secret = dBusCall("GetSecret", getDBusPath(), () -> remote.GetSecret(session));
@@ -106,7 +106,7 @@ public class Item extends DBusMessageHandler<org.purejava.secret.interfaces.Item
      */
     public void setSecret(Secret secret) {
         if (null == secret) {
-            LOG.error("Cannot setSecret as required secret is missing");
+            ITEM_LOG.error("Cannot setSecret as required secret is missing");
             return;
         }
         dBusCall("SetSecret", getDBusPath(), () -> {
