@@ -2,6 +2,7 @@
 ![FlatpakUpdateAndRestart](top-secret.png)
 
 [![Java CI with Gradle](https://github.com/purejava/secret-service/actions/workflows/build_main.yml/badge.svg)](https://github.com/purejava/FlatpakUpdateAndRestart/actions/workflows/build_main.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=secret-service&metric=alert_status&token=f4da2fd5b511e596a4a5ffaf45eff24a63df0a9f)](https://sonarcloud.io/summary/new_code?id=secret-service)
 [![Maven Central](https://img.shields.io/maven-central/v/org.purejava/secret-service.svg?label=Maven%20Central)](https://central.sonatype.com/search?q=secret-service&smo=true&namespace=org.purejava)
 [![License](https://img.shields.io/github/license/purejava/secret-service.svg)](https://github.com/purejava/secret-service/blob/main/LICENSE)
 
