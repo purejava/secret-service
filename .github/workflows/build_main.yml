@@ -34,3 +34,8 @@ jobs:
 
       - name: Build package
         run: ./gradlew clean build -x test
+
+      - name: Scan code
+        run: ./gradlew sonar -x test
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

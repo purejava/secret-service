@@ -19,13 +19,13 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ItemTest {
+class ItemTest {
     final String NAME = "TESTCreateItem";
     final String COLLECTION_PATH = "/org/freedesktop/secrets/collection/TESTCreateItem";
     private Context context;
 
     @BeforeEach
-    public void beforeEach() {
+    void beforeEach() {
         context = new Context();
         context.ensureService();
     }

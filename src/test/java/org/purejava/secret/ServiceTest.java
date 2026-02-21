@@ -12,13 +12,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ServiceTest {
+class ServiceTest {
     final String NAME = "TESTmyCollectionEmptyPassword";
     final String COLLECTION_PATH = "/org/freedesktop/secrets/collection/TESTmyCollectionEmptyPassword";
     private Context context;
 
     @BeforeEach
-    public void beforeEach() {
+    void beforeEach() {
         context = new Context();
         context.ensureService();
     }

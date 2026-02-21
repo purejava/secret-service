@@ -18,7 +18,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Service extends DBusMessageHandler<org.purejava.secret.interfaces.Service> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Service.class);
+    private static final Logger SERVICE_LOG = LoggerFactory.getLogger(Service.class);
     private static final String SERVICE_NOT_AVAILABLE = "Secret Service not available on DBus";
     private static final DBusConnection connection;
 
@@ -48,7 +48,7 @@ public class Service extends DBusMessageHandler<org.purejava.secret.interfaces.S
             Service.connection.addSigHandler(org.purejava.secret.interfaces.Service.CollectionDeleted.class, this::notifyOnCollectionDeleted);
 
         } catch (DBusException e) {
-            LOG.error(e.toString(), e.getCause());
+            SERVICE_LOG.error(e.toString(), e.getCause());
         }
     }
 
@@ -100,11 +100,11 @@ public class Service extends DBusMessageHandler<org.purejava.secret.interfaces.S
             if (result.isSuccess()) {
                 var resultValue = result.value().b;
                 if ("/".equals(resultValue.getPath())) {
-                    LOG.debug("The collection {} and item {} were unlocked without a prompt", collectinPath.getPath(), item.getPath());
+                    SERVICE_LOG.debug("The collection {} and item {} were unlocked without a prompt", collectinPath.getPath(), item.getPath());
                 } else {
                     var unlocked = Util.promptAndGetResultAsArrayList(resultValue);
                     for (DBusPath p : unlocked) {
-                        LOG.debug("Object {} was unlocked", p.getPath());
+                        SERVICE_LOG.debug("Object {} was unlocked", p.getPath());
                     }
                 }
             }
@@ -197,7 +197,7 @@ public class Service extends DBusMessageHandler<org.purejava.secret.interfaces.S
      */
     public DBusResult<Pair<List<DBusPath>, DBusPath>> unlock(List<DBusPath> objects) {
         if (null == objects) {
-            LOG.error("Cannot unlock as required objects to unlock are missing");
+            SERVICE_LOG.error("Cannot unlock as required objects to unlock are missing");
             return null;
         }
         return dBusCall("Unlock", getDBusPath(), () -> remote.Unlock(objects));
@@ -217,7 +217,7 @@ public class Service extends DBusMessageHandler<org.purejava.secret.interfaces.S
      */
     public DBusResult<Pair<List<DBusPath>, DBusPath>> lock(List<DBusPath> objects) {
         if (null == objects) {
-            LOG.error("Cannot lock as required objects to lock are missing");
+            SERVICE_LOG.error("Cannot lock as required objects to lock are missing");
             return null;
         }
         return dBusCall("Lock", getDBusPath(), () -> remote.Lock(objects));
@@ -232,11 +232,11 @@ public class Service extends DBusMessageHandler<org.purejava.secret.interfaces.S
      */
     public DBusResult<Map<DBusPath, Secret>> getSecrets(List<DBusPath> items, DBusPath session) {
         if (null == items) {
-            LOG.error("Cannot getSecrets as required items are missing");
+            SERVICE_LOG.error("Cannot getSecrets as required items are missing");
             return null;
         }
         if (Util.varIsEmpty(session.getPath())) {
-            LOG.error("Cannot getSecrets as required session is missing");
+            SERVICE_LOG.error("Cannot getSecrets as required session is missing");
             return null;
         }
         return dBusCall("GetSecrets", getDBusPath(), () -> remote.GetSecrets(items, session));
@@ -251,7 +251,7 @@ public class Service extends DBusMessageHandler<org.purejava.secret.interfaces.S
      */
     public DBusResult<DBusPath> readAlias(String name) {
         if (Util.varIsEmpty(name)) {
-            LOG.error("Cannot readAlias as required name is missing");
+            SERVICE_LOG.error("Cannot readAlias as required name is missing");
             return null;
         }
         return dBusCall("ReadAlias", getDBusPath(), () -> remote.ReadAlias(name));
@@ -265,11 +265,11 @@ public class Service extends DBusMessageHandler<org.purejava.secret.interfaces.S
      */
     public void setAlias(String name, DBusPath collection) {
         if (Util.varIsEmpty(name)) {
-            LOG.error("Cannot setAlias as required name is missing");
+            SERVICE_LOG.error("Cannot setAlias as required name is missing");
             return;
         }
         if (Util.varIsEmpty(collection.getPath())) {
-            LOG.error("Cannot setAlias as required collection is missing");
+            SERVICE_LOG.error("Cannot setAlias as required collection is missing");
             return;
         }
         dBusCall("SetAlias", getDBusPath(), () -> {

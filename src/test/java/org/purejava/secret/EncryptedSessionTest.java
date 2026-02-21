@@ -6,7 +6,7 @@ import org.purejava.secret.api.EncryptedSession;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class EncryptedSessionTest {
+class EncryptedSessionTest {
 
     @Test
     @DisplayName("Establish an encrypted session")

@@ -12,7 +12,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Prompt extends DBusMessageHandler<org.purejava.secret.interfaces.Prompt> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Prompt.class);
+    private static final Logger PROMPT_LOG = LoggerFactory.getLogger(Prompt.class);
     private static final String PROMPT_NOT_AVAILABLE = "Prompt not available on DBus";
     private static final DBusConnection connection;
 
@@ -36,7 +36,7 @@ public class Prompt extends DBusMessageHandler<org.purejava.secret.interfaces.Pr
             Prompt.connection.addSigHandler(org.purejava.secret.interfaces.Prompt.Completed.class, this::notifyOnCompleted);
 
         } catch (DBusException e) {
-            LOG.error(e.toString(), e.getCause());
+            PROMPT_LOG.error(e.toString(), e.getCause());
         }
     }
 
@@ -52,7 +52,7 @@ public class Prompt extends DBusMessageHandler<org.purejava.secret.interfaces.Pr
      */
     public void prompt(String window_id) {
         if (Util.varIsEmpty(window_id)) {
-            LOG.error("Cannot prompt as required window_id is missing");
+            PROMPT_LOG.error("Cannot prompt as required window_id is missing");
             return;
         }
         dBusCall("Prompt", getDBusPath(), () -> {

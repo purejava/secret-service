@@ -13,7 +13,7 @@ import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PlainSessionTest {
+class PlainSessionTest {
 
     @Test
     @DisplayName("Establish a plain session")

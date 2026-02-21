@@ -7,6 +7,7 @@ plugins {
     id("maven-publish")
     id("signing")
     id("com.adarshr.test-logger") version "4.0.0"
+    id("org.sonarqube") version "7.2.2.6593"
 }
 
 group = "org.purejava"
@@ -16,6 +17,7 @@ description = "A Java library for managing secrets on Linux using the secret ser
 val releaseGradlePluginToken: String = System.getenv("RELEASE_GRADLE_PLUGIN_TOKEN") ?: ""
 val sonatypeUsername: String = System.getenv("SONATYPE_USERNAME") ?: ""
 val sonatypePassword: String = System.getenv("SONATYPE_PASSWORD") ?: ""
+val sonarToken: String = System.getenv("SONAR_TOKEN") ?: ""
 
 java {
     java.sourceCompatibility = JavaVersion.VERSION_21
@@ -120,6 +122,15 @@ centralPortal {
             system.set("GitHub Issues")
             url.set("https://github.com/purejava/secret-service/issues")
         }
+    }
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "secret-service")
+        property("sonar.organization", "purejava")
+        property("sonar.host.url", "https://sonarcloud.io")
+        property("sonar.token", sonarToken)
     }
 }
 

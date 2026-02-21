@@ -32,7 +32,7 @@ public final class Secret extends Struct {
     // see: https://standards.freedesktop.org/secret-service/0.2/ch14.html
     public static final String TEXT_PLAIN_CHARSET_UTF_8 = "text/plain; charset=utf-8";
     public static final String TEXT_PLAIN = "text/plain";
-    private static final String CHARSET = "charset=";
+    private static final String CHARSET_STRING = "charset=";
 
     public Secret(DBusPath session, byte[] value) {
         this.session = requireNonNull(session);
@@ -91,22 +91,22 @@ public final class Secret extends Struct {
             mimeType = TEXT_PLAIN;
         }
 
-        if (filtered.size() == 2 && filtered.get(1).startsWith(CHARSET)) {
-            charset = Charset.forName(filtered.get(1).substring(CHARSET.length()).toUpperCase());
+        if (filtered.size() == 2 && filtered.get(1).startsWith(CHARSET_STRING)) {
+            charset = Charset.forName(filtered.get(1).substring(CHARSET_STRING.length()).toUpperCase());
         } else {
             charset = null;
         }
     }
 
-    static public String createContentType(String mimeType, Charset charset) {
-        return mimeType + "; " + CHARSET + charset.name().toLowerCase();
+    public static String createContentType(String mimeType, Charset charset) {
+        return mimeType + "; " + CHARSET_STRING + charset.name().toLowerCase();
     }
 
-    static public String createContentType(Charset charset) {
-        return TEXT_PLAIN + "; " + CHARSET + charset.name().toLowerCase();
+    public static String createContentType(Charset charset) {
+        return TEXT_PLAIN + "; " + CHARSET_STRING + charset.name().toLowerCase();
     }
 
-    static public byte[] toBytes(CharSequence passphrase) {
+    public static byte[] toBytes(CharSequence passphrase) {
         final ByteBuffer encoded = StandardCharsets.UTF_8.encode(CharBuffer.wrap(passphrase));
         final byte[] bytes = new byte[encoded.remaining()];
         encoded.get(bytes);
@@ -117,7 +117,7 @@ public final class Secret extends Struct {
         }
     }
 
-    static public byte[] toBytes(char[] passphrase) {
+    public static byte[] toBytes(char[] passphrase) {
         final ByteBuffer encoded = StandardCharsets.UTF_8.encode(CharBuffer.wrap(passphrase));
         final byte[] bytes = new byte[encoded.remaining()];
         encoded.get(bytes);
@@ -128,7 +128,7 @@ public final class Secret extends Struct {
         }
     }
 
-    static public char[] toChars(byte[] bytes){
+    public static char[] toChars(byte[] bytes){
         ByteBuffer encoded = ByteBuffer.wrap(bytes);
         CharBuffer decoded = StandardCharsets.UTF_8.decode(encoded);
         final char[] chars = new char[decoded.remaining()];
@@ -141,14 +141,14 @@ public final class Secret extends Struct {
         }
     }
 
-    static public void clear(byte[] bytes) {
+    public static void clear(byte[] bytes) {
         Arrays.fill(bytes, (byte) 0);
         for(byte b: bytes) {
             assert((byte) 0 == b);
         }
     }
 
-    static public void clear(ByteBuffer buffer) {
+    public static void clear(ByteBuffer buffer) {
         final byte[] zeros = new byte[buffer.limit()];
         Arrays.fill(zeros, (byte) 0);
         buffer.rewind();
@@ -158,7 +158,7 @@ public final class Secret extends Struct {
         }
     }
 
-    static public void clear(CharBuffer buffer) {
+    public static void clear(CharBuffer buffer) {
         final char[] zeros = new char[buffer.limit()];
         Arrays.fill(zeros, (char) 0);
         buffer.rewind();
@@ -192,7 +192,7 @@ public final class Secret extends Struct {
         return mimeType;
     }
 
-    public Charset getCharset() {
+    public Charset getCharsetString() {
         return charset;
     }
 

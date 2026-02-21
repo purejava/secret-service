@@ -1,11 +1,26 @@
 package org.purejava.secret.api;
 
 public class Static {
+
+    private Static() {
+        // prevent instantiation
+    }
+
     public static class Service {
+
+        private Service() {
+            // prevent instantiation
+        }
+
         public static final String SECRETS = "org.freedesktop.secrets";
     }
 
     public static class DBusPath {
+
+        private DBusPath() {
+            // prevent instantiation
+        }
+
         public static final String SECRETS = "/org/freedesktop/secrets";
         public static final String SESSION = "/org/freedesktop/secrets/session";
         public static final String ALIASES = "/org/freedesktop/secrets/aliases";
@@ -18,6 +33,11 @@ public class Static {
     }
 
     public static class Interfaces {
+
+        private Interfaces() {
+            // prevent instantiation
+        }
+
         public static final String SESSION = "org.freedesktop.Secret.Session";
         public static final String SERVICE = "org.freedesktop.Secret.Service";
         public static final String COLLECTION = "org.freedesktop.Secret.Collection";
