@@ -56,13 +56,16 @@ public class EncryptedSession {
         try {
             initialize();
             var sessionOpened = openSession();
+            if (!sessionOpened) {
+                return false;
+            }
             generateSessionKey();
-            return sessionOpened;
+            return true;
         } catch (InvalidAlgorithmParameterException |
                  NoSuchAlgorithmException |
                  InvalidKeySpecException |
                  InvalidKeyException e) {
-            LOG.error("Failed to setup encrypted session");
+            LOG.error("Failed to setup encrypted session", e);
             return false;
         }
     }
@@ -112,6 +115,7 @@ public class EncryptedSession {
             session = osResponse.value().b;
             return true;
         } else {
+            LOG.error("Failed to open session: {}", osResponse.error().getMessage());
             return false;
         }
     }
@@ -243,7 +247,7 @@ public class EncryptedSession {
         }
 
         /**
-         * RFC 7296: https://datatracker.ietf.org/doc/html/rfc7296#appendix-B.2
+         * RFC 7296: <a href="https://datatracker.ietf.org/doc/html/rfc7296#appendix-B.2">Appendix B.2.</a>
          */
         public static class SecondOakleyGroup {
 
