@@ -9,7 +9,7 @@
 A Java library for managing secrets on Linux using the secret service DBus. It’s compatible to the GNOME keyring daemon and the kwallet daemon. The latter implements the Secret Service API since version v5.97.0, which was released in August 2022.
 
 # Specification
-The library implements the [Secret Service API Draft 0.2](https://specifications.freedesktop.org/secret-service-spec/latest/), paublished on 31st of August 2025.
+The library implements the [Secret Service API Draft 0.2](https://specifications.freedesktop.org/secret-service-spec/latest/).
 
 # Dependency
 Add `secret-service` as a dependency to your project.
