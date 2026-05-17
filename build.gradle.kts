@@ -127,10 +127,11 @@ centralPortal {
 
 sonar {
     properties {
-        property("sonar.projectKey", "secret-service")
+        property("sonar.projectKey", "purejava_secret-service")
         property("sonar.organization", "purejava")
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.token", sonarToken)
+        property("sonar.projectVersion", project.version.toString())
     }
 }
 
