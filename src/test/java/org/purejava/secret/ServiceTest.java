@@ -46,8 +46,8 @@ class ServiceTest {
         var path = pair.value().a.getPath();
         var promtp = pair.value().b;
         assertEquals("/", path);
-        var result = Util.promptAndGetResultAsDBusPath(promtp);
-        assertEquals("/", result.getPath());
+        var result = Util.promptAndGetResultAsArrayList(promtp);
+        assertEquals("/", result.getFirst().getPath());
     }
 
     @Test
