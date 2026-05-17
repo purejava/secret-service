@@ -33,9 +33,13 @@ jobs:
           GPG_SIGNING_KEY_PW: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: Build package
-        run: ./gradlew clean build -x test
+        run: |
+          ./gradlew --write-verification-metadata sha256
+          ./gradlew clean build -x test
 
       - name: Scan code
-        run: ./gradlew sonar -x test
+        run: |
+          ./gradlew --write-verification-metadata sha256
+          ./gradlew sonar -x test
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
