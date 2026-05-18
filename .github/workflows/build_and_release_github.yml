@@ -34,7 +34,9 @@ jobs:
           GPG_SIGNING_KEY_PW: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: Build package
-        run: ./gradlew clean build -x test
+        run: |
+          ./gradlew --write-verification-metadata sha256
+          ./gradlew clean build -x test
 
       - name: Release package
         run: ./gradlew githubRelease
