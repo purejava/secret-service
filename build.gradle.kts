@@ -20,7 +20,9 @@ val sonatypePassword: String = System.getenv("SONATYPE_PASSWORD") ?: ""
 val sonarToken: String = System.getenv("SONAR_TOKEN") ?: ""
 
 java {
-    java.sourceCompatibility = JavaVersion.VERSION_21
+        toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
     withSourcesJar()
     withJavadocJar()
 }
