@@ -83,14 +83,14 @@ public class Service extends DBusMessageHandler<org.purejava.secret.interfaces.S
      * @param item The item to be unlocked.
      */
     public void ensureUnlocked(DBusPath item) {
-        var collectinPath = new Item(item).getCollectionPath();
-        var collection = new Collection(collectinPath);
+        var collectionPath = new Item(item).getCollectionPath();
+        var collection = new Collection(collectionPath);
         var containedItem = new Item(item);
         var statusCollection = collection.isLocked();
         var statusItem = containedItem.isLocked();
         List<DBusPath> lockable = new ArrayList<>();
         if (statusCollection.isSuccess() && Boolean.TRUE.equals(statusCollection.value())) {
-            lockable.add(collectinPath);
+            lockable.add(collectionPath);
         }
         if (statusItem.isSuccess() && Boolean.TRUE.equals(statusItem.value())) {
             lockable.add(item);
@@ -100,7 +100,7 @@ public class Service extends DBusMessageHandler<org.purejava.secret.interfaces.S
             if (result.isSuccess()) {
                 var resultValue = result.value().b;
                 if ("/".equals(resultValue.getPath())) {
-                    SERVICE_LOG.debug("The collection {} and item {} were unlocked without a prompt", collectinPath.getPath(), item.getPath());
+                    SERVICE_LOG.debug("The collection {} and item {} were unlocked without a prompt", collectionPath.getPath(), item.getPath());
                 } else {
                     var unlocked = Util.promptAndGetResultAsArrayList(resultValue);
                     for (DBusPath p : unlocked) {
