@@ -5,6 +5,7 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=purejava_secret-service&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=purejava_secret-service)
 [![Maven Central](https://img.shields.io/maven-central/v/org.purejava/secret-service.svg?label=Maven%20Central)](https://central.sonatype.com/search?q=secret-service&smo=true&namespace=org.purejava)
 [![License](https://img.shields.io/github/license/purejava/secret-service.svg)](https://github.com/purejava/secret-service/blob/main/LICENSE)
+<a href="#supported-platforms"><img alt="Linux" src="https://img.shields.io/badge/Linux-supported-blue.svg" /></a>
 
 A Java library for managing secrets on Linux using the secret service DBus. It’s compatible to the GNOME keyring daemon and the kwallet daemon. The latter implements the Secret Service API since version v5.97.0, which was released in August 2022.
 
