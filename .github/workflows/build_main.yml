@@ -37,12 +37,10 @@ jobs:
 
       - name: Build package
         run: |
-          ./gradlew --write-verification-metadata sha256
           ./gradlew clean build -x test
 
       - name: Scan code
         run: |
-          ./gradlew --write-verification-metadata sha256
           ./gradlew sonar -x test
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
