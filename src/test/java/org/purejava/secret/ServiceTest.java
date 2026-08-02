@@ -2,6 +2,7 @@ package org.purejava.secret;
 
 import org.freedesktop.dbus.DBusPath;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.purejava.secret.api.Collection;
 import org.purejava.secret.api.Static;
 import org.purejava.secret.api.Util;
@@ -24,8 +25,12 @@ class ServiceTest {
     }
 
     @Test
-    @DisplayName("List collection(s)")
-    void listCollections() {
+    @EnabledIfEnvironmentVariable(
+        named = "XDG_CURRENT_DESKTOP",
+        matches = ".*KDE.*"
+    )
+    @DisplayName("List collections on KDE")
+    void listCollectionsKDE() {
         var collections = context.service.getCollections();
         List<String> paths = collections.value().stream()
                 .map(DBusPath::getPath)
@@ -38,6 +43,23 @@ class ServiceTest {
     }
 
     @Test
+    @EnabledIfEnvironmentVariable(
+        named = "XDG_CURRENT_DESKTOP",
+        matches = ".*GNOME.*"
+    )
+    @DisplayName("List collections on GNOME")
+    void listCollectionsGNOME() {
+        var collections = context.service.getCollections();
+        List<String> paths = collections.value().stream()
+            .map(DBusPath::getPath)
+            .toList();
+        assertTrue(List.of(
+            Static.DBusPath.SESSION_COLLECTION,
+            Static.DBusPath.LOGIN_COLLECTION
+        ).contains(paths.getFirst()));
+    }
+
+    @Test
     @DisplayName("Create collection (dismissed)")
     // this collection should be dismissed
     void createCollectionCanceled() {
@@ -46,8 +68,14 @@ class ServiceTest {
         var path = pair.value().a.getPath();
         var promtp = pair.value().b;
         assertEquals("/", path);
-        var result = Util.promptAndGetResultAsArrayList(promtp);
-        assertEquals("/", result.getFirst().getPath());
+        if (ExpectedDesktop.isDesktop("KDE")) {
+            var result = Util.promptAndGetResultAsArrayList(promtp);
+            assertEquals("/", result.getFirst().getPath());
+        }
+        if (ExpectedDesktop.isDesktop("GNOME")) {
+            var result = Util.promptAndGetResultAsDBusPath(promtp);
+            assertEquals("/", result.getPath());
+        }
     }
 
     @Test

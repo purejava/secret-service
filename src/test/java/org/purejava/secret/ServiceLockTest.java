@@ -43,9 +43,14 @@ class ServiceLockTest {
         assertTrue(myCollection.isLocked().value());
         var prompt = context.service.unlock(toLock).value();
         var promptb = prompt.b;
-        assertNotEquals("/", promptb.getPath());
-        var unlocked = Util.promptAndGetResultAsArrayList(promptb);
-        assertEquals(COLLECTION_PATH, unlocked.getFirst().getPath());
+        if (ExpectedDesktop.isDesktop("KDE")) {
+            assertNotEquals("/", promptb.getPath());
+            var unlocked = Util.promptAndGetResultAsArrayList(promptb);
+            assertEquals(COLLECTION_PATH, unlocked.getFirst().getPath());
+        }
+        if (ExpectedDesktop.isDesktop("GNOME")) {
+            assertEquals("/", promptb.getPath());
+        }
         var dBusPath = myCollection.delete().value();
         assertEquals("/", dBusPath.getPath());
     }
