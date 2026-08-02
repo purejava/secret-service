@@ -42,7 +42,6 @@ jobs:
 
       - name: Build package
         run: |
-          ./gradlew --write-verification-metadata sha256
           ./gradlew clean build -x test
 
       - name: Publish package
