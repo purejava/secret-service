@@ -55,8 +55,7 @@ public class EncryptedSession {
     public boolean setupEncryptedSession() {
         try {
             initialize();
-            var sessionOpened = openSession();
-            if (!sessionOpened) {
+            if (!openSession()) {
                 return false;
             }
             generateSessionKey();
@@ -99,24 +98,33 @@ public class EncryptedSession {
                 Algorithm.DH_IETF1024_SHA256_AES128_CBC_PKCS7, new Variant<>(ya.toByteArray()));
 
         // transform peer's raw Y to a public key
-        if (osResponse.isSuccess()) {
-            Variant<?> reaponsea = osResponse.value().a;
-            Object value = reaponsea.getValue();
-            if (value instanceof ArrayList) {
-                @SuppressWarnings("unchecked")
-                List<Byte> list = (ArrayList<Byte>) osResponse.value().a.getValue();
-                yb = new byte[list.size()];
-                IntStream.range(0, list.size()).forEach(i -> yb[i] = list.get(i));
-            } else if (value instanceof byte[]) {
-                yb = (byte[]) osResponse.value().a.getValue();
-            } else {
-                throw new IllegalStateException("Dbus returned unexpected result for openSession method call: " + value.getClass().getName());
+        switch (osResponse) {
+            case DBusResult.Success<Pair<Variant<?>, DBusPath>> success -> {
+                Pair<Variant<?>, DBusPath> response = success.value();
+
+                Object value = response.a.getValue();
+
+                if (value instanceof ArrayList) {
+                    @SuppressWarnings("unchecked")
+                    List<Byte> list = (ArrayList<Byte>) value;
+                    yb = new byte[list.size()];
+                    IntStream.range(0, list.size()).forEach(i -> yb[i] = list.get(i));
+                } else if (value instanceof byte[]) {
+                    yb = (byte[]) value;
+                } else {
+                    throw new IllegalStateException(
+                        "DBus returned unexpected result for openSession method call: "
+                            + value.getClass().getName());
+                }
+
+                session = response.b;
+                return true;
             }
-            session = osResponse.value().b;
-            return true;
-        } else {
-            LOG.error("Failed to open session: {}", osResponse.error().getMessage());
-            return false;
+
+            case DBusResult.Failure<Pair<Variant<?>, DBusPath>> failure -> {
+                LOG.error("Failed to open session: {}", failure.error().getMessage());
+                return false;
+            }
         }
     }
 

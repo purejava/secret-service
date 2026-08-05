@@ -4,7 +4,12 @@ import org.freedesktop.dbus.DBusPath;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.purejava.secret.api.*;
+import org.purejava.secret.api.Collection;
+import org.purejava.secret.api.DBusMessageHandler;
+import org.purejava.secret.api.EncryptedSession;
+import org.purejava.secret.api.Item;
+import org.purejava.secret.api.Static;
+import org.purejava.secret.api.Util;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -17,11 +22,29 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class ItemTest {
-    final String NAME = "TESTCreateItem";
-    final String COLLECTION_PATH = "/org/freedesktop/secrets/collection/TESTCreateItem";
+
+    private static <T> T requireSuccess(
+        DBusMessageHandler.DBusResult<T> result,
+        String message) {
+
+        return switch (result) {
+            case DBusMessageHandler.DBusResult.Success<T> success ->
+                success.value();
+
+            case DBusMessageHandler.DBusResult.Failure<T> failure ->
+                fail(message, failure.error());
+        };
+    }
+
+    private static final String NAME = "TESTCreateItem";
+    private static final String COLLECTION_PATH =
+        "/org/freedesktop/secrets/collection/TESTCreateItem";
+
     private Context context;
 
     @BeforeEach
@@ -33,46 +56,76 @@ class ItemTest {
     @Test
     @DisplayName("Create an item with an encrypted secret and manipulate that")
     void testItemInterfaces() throws InvalidAlgorithmParameterException,
-            NoSuchAlgorithmException,
-            InvalidKeySpecException,
-            InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
+        NoSuchAlgorithmException,
+        InvalidKeySpecException,
+        InvalidKeyException,
+        NoSuchPaddingException,
+        IllegalBlockSizeException,
+        BadPaddingException {
         EncryptedSession session = new EncryptedSession();
         session.initialize();
-        var sessionOpened = session.openSession();
-        session.generateSessionKey();
+        boolean sessionOpened = session.openSession();
         assertTrue(sessionOpened);
-        var props = Collection.createProperties(NAME);
-        var pair = context.service.createCollection(props, "");
-        var path = pair.value().a.getPath();
-        var promtp = pair.value().b;
-        assertEquals("/", path);
-        var result = Util.promptAndGetResultAsDBusPath(promtp);
-        assertEquals(COLLECTION_PATH, result.getPath());
-        var myCollection = new Collection(new DBusPath(Static.DBusPath.COLLECTION + "/" + NAME));
-        Map<String, String> attribs = new HashMap<>();
-        attribs.put("Attrib1", "Value1");
-        attribs.put("Attrib2", "Value2");
-        var itemProps = Item.createProperties("HelloItem", attribs);
+        session.generateSessionKey();
+        var collectionProperties = Collection.createProperties(NAME);
+        var createCollectionResult = requireSuccess(
+            context.service.createCollection(collectionProperties, ""),
+            "Failed to create collection"
+        );
+        DBusPath collectionPath = createCollectionResult.a;
+        DBusPath collectionPrompt = createCollectionResult.b;
+        assertEquals("/", collectionPath.getPath());
+        DBusPath promptResult =
+            Util.promptAndGetResultAsDBusPath(collectionPrompt);
+        assertEquals(COLLECTION_PATH, promptResult.getPath());
+        var myCollection = new Collection(
+            new DBusPath(Static.DBusPath.COLLECTION + "/" + NAME)
+        );
+        Map<String, String> attributes = new HashMap<>();
+        attributes.put("Attrib1", "Value1");
+        attributes.put("Attrib2", "Value2");
+        var itemProperties = Item.createProperties("HelloItem", attributes);
         var secret = session.encrypt("passwd");
-        pair = myCollection.createItem(itemProps, secret, false);
-        assertTrue(pair.value().a.getPath().startsWith(COLLECTION_PATH + "/"));
-        var found = myCollection.searchItems(attribs);
-        assertTrue(found.value().getFirst().getPath().startsWith(COLLECTION_PATH + "/"));
-        var relevantPath = found.value().getFirst().getPath();
-        var newSecret = new Item(new DBusPath(relevantPath)).getSecret(session.getSession());
-        var fin = session.decrypt(newSecret);
-        assertEquals("passwd", new String(fin));
+        var createItemResult = requireSuccess(
+            myCollection.createItem(itemProperties, secret, false),
+            "Failed to create item");
+        DBusPath createdItemPath = createItemResult.a;
+        assertTrue(createdItemPath.getPath().startsWith(COLLECTION_PATH + "/"));
+        var foundItems = requireSuccess(
+            myCollection.searchItems(attributes),
+            "Failed to search collection items"
+        );
+        assertFalse(foundItems.isEmpty());
+        DBusPath relevantPath = foundItems.getFirst();
+        assertTrue(relevantPath.getPath().startsWith(COLLECTION_PATH + "/"));
+        var item = new Item(relevantPath);
+        var encryptedSecret = item.getSecret(session.getSession());
+        char[] decryptedSecret = session.decrypt(encryptedSecret);
+        assertEquals("passwd", new String(decryptedSecret));
         secret = session.encrypt("PASSWD");
-        new Item(new DBusPath(relevantPath)).setSecret(secret);
-        newSecret = new Item(new DBusPath(relevantPath)).getSecret(session.getSession());
-        fin = session.decrypt(newSecret);
-        assertEquals("PASSWD", new String(fin));
-        assertEquals("HelloItem", new Item(new DBusPath(relevantPath)).getLabel().value());
-        var promptRequired = new Item(new DBusPath(relevantPath)).delete();
-        assertEquals("/", promptRequired.value().getPath());
-        found = myCollection.searchItems(attribs);
-        assertEquals(0, found.value().size());
-        var dBusPath = myCollection.delete();
-        assertEquals("/", dBusPath.value().getPath());
+        new Item(new DBusPath(relevantPath.getPath())).setSecret(secret);
+        encryptedSecret = item.getSecret(session.getSession());
+        decryptedSecret = session.decrypt(encryptedSecret);
+        assertEquals("PASSWD", new String(decryptedSecret));
+        String label = requireSuccess(
+            item.getLabel(),
+            "Failed to retrieve item label"
+        );
+        assertEquals("HelloItem", label);
+        DBusPath itemDeletePrompt = requireSuccess(
+            item.delete(),
+            "Failed to delete item"
+        );
+        assertEquals("/", itemDeletePrompt.getPath());
+        foundItems = requireSuccess(
+            myCollection.searchItems(attributes),
+            "Failed to search collection items after deletion"
+        );
+        assertTrue(foundItems.isEmpty());
+        DBusPath collectionDeletePrompt = requireSuccess(
+            myCollection.delete(),
+            "Failed to delete collection"
+        );
+        assertEquals("/", collectionDeletePrompt.getPath());
     }
 }

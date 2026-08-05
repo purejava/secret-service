@@ -19,7 +19,7 @@ public interface Prompt extends DBusInterface {
          * @param path              The path to the object this is emitted from.
          * @param dismissed         Whether the prompt and operation were dismissed or not.
          * @param result            The possibly empty, operation specific, result.
-         * @throws DBusException    Could not communicate properly with the D-Bus.
+         * @throws DBusException    Could not communicate properly with the DBus.
          */
         public Completed(String path, boolean dismissed, Variant<?> result) throws DBusException {
             super(path, dismissed, result);

@@ -86,28 +86,52 @@ public class Service extends DBusMessageHandler<org.purejava.secret.interfaces.S
         var collectionPath = new Item(item).getCollectionPath();
         var collection = new Collection(collectionPath);
         var containedItem = new Item(item);
+
         var statusCollection = collection.isLocked();
         var statusItem = containedItem.isLocked();
+
         List<DBusPath> lockable = new ArrayList<>();
-        if (statusCollection.isSuccess() && Boolean.TRUE.equals(statusCollection.value())) {
+
+        if (statusCollection instanceof DBusResult.Success<Boolean> success
+            && Boolean.TRUE.equals(success.value())) {
             lockable.add(collectionPath);
         }
-        if (statusItem.isSuccess() && Boolean.TRUE.equals(statusItem.value())) {
+
+        if (statusItem instanceof DBusResult.Success<Boolean> success
+            && Boolean.TRUE.equals(success.value())) {
             lockable.add(item);
         }
-        if (!lockable.isEmpty()) {
-            var result = unlock(lockable);
-            if (result.isSuccess()) {
-                var resultValue = result.value().b;
-                if ("/".equals(resultValue.getPath())) {
-                    SERVICE_LOG.debug("The collection {} and item {} were unlocked without a prompt", collectionPath.getPath(), item.getPath());
+
+        if (lockable.isEmpty()) {
+            return;
+        }
+
+        switch (unlock(lockable)) {
+            case DBusResult.Success<Pair<List<DBusPath>, DBusPath>> success -> {
+                DBusPath promptPath = success.value().b;
+
+                if ("/".equals(promptPath.getPath())) {
+                    SERVICE_LOG.debug(
+                        "The collection {} and item {} were unlocked without a prompt",
+                        collectionPath.getPath(),
+                        item.getPath()
+                    );
                 } else {
-                    var unlocked = Util.promptAndGetResultAsArrayList(resultValue);
-                    for (DBusPath p : unlocked) {
-                        SERVICE_LOG.debug("Object {} was unlocked", p.getPath());
+                    var unlocked = Util.promptAndGetResultAsArrayList(promptPath);
+
+                    for (DBusPath path : unlocked) {
+                        SERVICE_LOG.debug("Object {} was unlocked", path.getPath());
                     }
                 }
             }
+
+            case DBusResult.Failure<Pair<List<DBusPath>, DBusPath>> failure ->
+                SERVICE_LOG.warn(
+                    "Failed to unlock collection {} and item {}",
+                    collectionPath.getPath(),
+                    item.getPath(),
+                    failure.error()
+                );
         }
     }
 
@@ -168,7 +192,7 @@ public class Service extends DBusMessageHandler<org.purejava.secret.interfaces.S
      *                   <p>
      *                   <b>Note:</b>
      *                   Please note that there is a distinction between the terms <i>Property</i>, which refers
-     *                   to D-Bus properties of an object, and <i>Attribute</i>, which refers to one of a
+     *                   to DBus properties of an object, and <i>Attribute</i>, which refers to one of a
      *                   secret item's string-valued attributes.
      *                   </p>
      * @return In case the DBus call succeeded: Pair&lt;unlocked, locked&gt;<br>
@@ -285,18 +309,11 @@ public class Service extends DBusMessageHandler<org.purejava.secret.interfaces.S
      */
     public DBusResult<List<DBusPath>> getCollections() {
 
-        DBusResult<List<DBusPath>> result = dBusCall(
+        return dBusCall(
                 "Get(Collections)",
                 getDBusPath(),
                 () -> properties.Get(Static.Interfaces.SERVICE, "Collections")
         );
-
-        if (!result.isSuccess()) {
-            // propagate error wrapped in the same container type
-            return new DBusResult<>(null, result.error());
-        }
-
-        return new DBusResult<>(result.value(), null);
     }
 
     public String getDBusPath() {

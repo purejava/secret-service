@@ -82,19 +82,23 @@ public class Item extends DBusMessageHandler<org.purejava.secret.interfaces.Item
             return null;
         }
         var secret = dBusCall("GetSecret", getDBusPath(), () -> remote.GetSecret(session));
-        if (!secret.isSuccess()) {
-            return null;
-        } else {
-            var contentType = secret.value().getContentType();
-            var sessionPath = secret.value().getSession();
-            var parameters = secret.value().getSecretParameters();
-            var value = secret.value().getSecretValue();
-            if (contentType.equals(Secret.TEXT_PLAIN) || contentType.equals(Secret.TEXT_PLAIN_CHARSET_UTF_8)) {
-                // replace the content-type "text/plain" with default "text/plain; charset=utf8"
-                return new Secret(sessionPath, parameters, value);
-            } else {
-                // use given non default content-type
-                return new Secret(sessionPath, parameters, value, contentType);
+        switch (secret) {
+            case DBusResult.Failure<?> failure -> {
+                return null;
+            }
+
+            case DBusResult.Success<Secret> success -> {
+                var contentType = success.value().getContentType();
+                var sessionPath = success.value().getSession();
+                var parameters = success.value().getSecretParameters();
+                var value = success.value().getSecretValue();
+                if (contentType.equals(Secret.TEXT_PLAIN) || contentType.equals(Secret.TEXT_PLAIN_CHARSET_UTF_8)) {
+                    // replace the content-type "text/plain" with default "text/plain; charset=utf8"
+                    return new Secret(sessionPath, parameters, value);
+                } else {
+                    // use given non default content-type
+                    return new Secret(sessionPath, parameters, value, contentType);
+                }
             }
         }
     }
@@ -109,10 +113,13 @@ public class Item extends DBusMessageHandler<org.purejava.secret.interfaces.Item
             ITEM_LOG.error("Cannot setSecret as required secret is missing");
             return;
         }
-        dBusCall("SetSecret", getDBusPath(), () -> {
-            remote.SetSecret(secret);
-            return null;
-        });
+        dBusCall("SetSecret",
+            getDBusPath(),
+            () -> {
+                remote.SetSecret(secret);
+                return null;
+            }
+        );
     }
 
     /**
@@ -122,49 +129,37 @@ public class Item extends DBusMessageHandler<org.purejava.secret.interfaces.Item
      * the DBus error otherwise.
      */
     public DBusResult<Boolean> isLocked() {
-        return dBusCall("Get(Locked)", getDBusPath(), () ->
-                properties.Get(Static.Interfaces.ITEM, "Locked"));
+        return dBusCall(
+            "Get(Locked)",
+            getDBusPath(),
+            () -> properties.Get(Static.Interfaces.ITEM, "Locked")
+        );
     }
 
     /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      *
-     * @return The attributes of the item, in case the DBus call succeeded, the DBus error otherwise.
+     * @return the attributes as if the DBus call succeeded, or the DBus error
      */
     public DBusResult<Map<String, String>> getAttributes() {
-
-        DBusResult<Map<String, String>> result = dBusCall(
-                "Get(Attributes)",
-                getDBusPath(),
-                () -> properties.Get(Static.Interfaces.ITEM, "Attributes")
+        return dBusCall(
+            "Get(Attributes)",
+            getDBusPath(),
+            () -> properties.Get(Static.Interfaces.ITEM, "Attributes")
         );
-
-        if (!result.isSuccess()) {
-            return new DBusResult<>(null, result.error());
-        }
-
-        return new DBusResult<>(result.value(), null);
     }
 
     /**
      * <p>It is accessed using the <code>org.freedesktop.DBus.Properties</code> interface.</p>
      *
-     * @return The displayable label of this collection, in case the DBus call succeeded, the DBus error otherwise.
+     * @return The displayable label of this collection as, in case the DBus call succeeded, the DBus error otherwise.
      */
     public DBusResult<String> getLabel() {
-
-        DBusResult<String> result = dBusCall(
+        return dBusCall(
                 "Get(Label)",
                 getDBusPath(),
                 () -> properties.Get(Static.Interfaces.ITEM, "Label")
         );
-
-        if (!result.isSuccess()) {
-            // propagate error wrapped in the same container type
-            return new DBusResult<>(null, result.error());
-        }
-
-        return new DBusResult<>(result.value(), null);
     }
 
     /**
@@ -173,18 +168,11 @@ public class Item extends DBusMessageHandler<org.purejava.secret.interfaces.Item
      * @return The unix time when the item was created, in case the DBus call succeeded, the DBus error otherwise.
      */
     public DBusResult<UInt64> getCreated() {
-
-        DBusResult<UInt64> result = dBusCall(
+        return dBusCall(
                 "Get(Created)",
                 getDBusPath(),
                 () -> properties.Get(Static.Interfaces.ITEM, "Created")
         );
-
-        if (!result.isSuccess()) {
-            return new DBusResult<>(null, result.error());
-        }
-
-        return new DBusResult<>(result.value(), null);
     }
 
     /**
@@ -193,18 +181,11 @@ public class Item extends DBusMessageHandler<org.purejava.secret.interfaces.Item
      * @return The unix time when the item was last modified, in case the DBus call succeeded, the DBus error otherwise.
      */
     public DBusResult<UInt64> getModified() {
-
-        DBusResult<UInt64> result = dBusCall(
+        return dBusCall(
                 "Get(Modified)",
                 getDBusPath(),
                 () -> properties.Get(Static.Interfaces.ITEM, "Modified")
         );
-
-        if (!result.isSuccess()) {
-            return new DBusResult<>(null, result.error());
-        }
-
-        return new DBusResult<>(result.value(), null);
     }
 
     /**

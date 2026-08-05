@@ -4,37 +4,63 @@ import org.freedesktop.dbus.DBusPath;
 import org.freedesktop.dbus.types.Variant;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.purejava.secret.api.DBusMessageHandler;
 import org.purejava.secret.api.EncryptedSession;
 import org.purejava.secret.api.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class PlainSessionTest {
+
+    private static <T> T requireSuccess(
+        DBusMessageHandler.DBusResult<T> result,
+        String message) {
+
+        return switch (result) {
+            case DBusMessageHandler.DBusResult.Success<T> success ->
+                success.value();
+
+            case DBusMessageHandler.DBusResult.Failure<T> failure ->
+                fail(message, failure.error());
+        };
+    }
 
     @Test
     @DisplayName("Establish a plain session")
     void establishPlainSession() {
         Service service = new Service();
-        byte[] bl;
-        var response = service.openSession(EncryptedSession.Algorithm.PLAIN, new Variant<>(""));
-        Variant<?> reaponsea = response.value().a;
-        Object value = reaponsea.getValue();
+        var openSessionResult = requireSuccess(
+            service.openSession(
+                EncryptedSession.Algorithm.PLAIN,
+                new Variant<>("")
+            ),
+            "Failed to establish plain session"
+        );
+        Variant<?> responseVariant = openSessionResult.a;
+        Object value = responseVariant.getValue();
+        byte[] responseBytes;
         if (value instanceof ArrayList) {
             @SuppressWarnings("unchecked")
-            List<Byte> list = (ArrayList<Byte>) response.value().a.getValue();
-            bl = new byte[list.size()];
-            IntStream.range(0, list.size()).forEach(i -> bl[i] = list.get(i));
-        } else if (value instanceof String) {
-            bl = ((String) value).getBytes();
+            List<Byte> list = (ArrayList<Byte>) value;
+            responseBytes = new byte[list.size()];
+            IntStream.range(0, list.size()).forEach(i -> responseBytes[i] = list.get(i));
+        } else if (value instanceof String string) {
+            responseBytes = string.getBytes(StandardCharsets.UTF_8);
         } else {
-            throw new IllegalStateException("Dbus returned unexpected result for openSession method call: " + value.getClass().getName());
+            throw new IllegalStateException(
+                "DBus returned an unexpected result for openSession: "
+                    + value.getClass().getName()
+            );
         }
-        DBusPath session = response.value().b;
-        assertEquals(0, bl.length);
-        assertFalse(session.getPath().isEmpty());
+        DBusPath sessionPath = openSessionResult.b;
+        assertEquals(0, responseBytes.length);
+        assertFalse(sessionPath.getPath().isEmpty());
     }
 }

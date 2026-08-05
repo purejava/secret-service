@@ -23,7 +23,7 @@ public interface Service extends DBusInterface {
          *
          * @param path           The path to the object this is emitted from.
          * @param collection     Collection that was created.
-         * @throws DBusException Could not communicate properly with the D-Bus.
+         * @throws DBusException Could not communicate properly with the DBus.
          */
         public CollectionCreated(String path, DBusPath collection) throws DBusException {
             super(path, collection);
@@ -39,7 +39,7 @@ public interface Service extends DBusInterface {
          *
          * @param path           The path to the object this is emitted from.
          * @param collection     Collection that was deleted.
-         * @throws DBusException Could not communicate properly with the D-Bus.
+         * @throws DBusException Could not communicate properly with the DBus.
          */
         public CollectionDeleted(String path, DBusPath collection) throws DBusException {
             super(path, collection);
@@ -55,7 +55,7 @@ public interface Service extends DBusInterface {
          *
          * @param path           The path to the object this is emitted from.
          * @param collection     Collection that was changed.
-         * @throws DBusException Could not communicate properly with the D-Bus.
+         * @throws DBusException Could not communicate properly with the DBus.
          */
         public CollectionChanged(String path, DBusPath collection) throws DBusException {
             super(path, collection);
@@ -112,7 +112,7 @@ public interface Service extends DBusInterface {
      *                      <p>
      *                          <b>Note:</b>
      *                          Please note that there is a distinction between the terms <i>Property</i>, which refers
-     *                          to D-Bus properties of an object, and <i>Attribute</i>, which refers to one of a
+     *                          to DBus properties of an object, and <i>Attribute</i>, which refers to one of a
      *                          secret item's string-valued attributes.
      *                      </p>
      *

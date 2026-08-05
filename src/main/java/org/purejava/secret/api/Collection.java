@@ -34,8 +34,8 @@ public class Collection extends DBusMessageHandler<org.purejava.secret.interface
         connection = ConnectionManager.getInstance().getConnection();
         var service = new Service();
         var getName = service.readAlias("default");
-        if (getName.isSuccess()) {
-            defaultCollection = getName.value();
+        if (getName instanceof DBusResult.Success<DBusPath> success) {
+            defaultCollection = success.value();
         }
     }
 
@@ -122,7 +122,7 @@ public class Collection extends DBusMessageHandler<org.purejava.secret.interface
      *                   <p>
      *                   <b>Note:</b>
      *                   Please note that there is a distinction between the terms <i>Property</i>, which refers
-     *                   to D-Bus properties of an object, and <i>Attribute</i>, which refers to one of a
+     *                   to DBus properties of an object, and <i>Attribute</i>, which refers to one of a
      *                   secret item's string-valued attributes.
      *                   </p>
      * @param secret     The secret to store in the item, encoded with the included session.
@@ -150,19 +150,11 @@ public class Collection extends DBusMessageHandler<org.purejava.secret.interface
      * @return Items in this collection, in case the DBus call succeeded, the DBus error otherwise.
      */
     public DBusResult<List<DBusPath>> getItems() {
-
-        DBusResult<List<DBusPath>> result = dBusCall(
+        return dBusCall(
                 "Get(Items)",
                 getDBusPath(),
                 () -> properties.Get(Static.Interfaces.COLLECTION, "Items")
         );
-
-        if (!result.isSuccess()) {
-            // propagate error wrapped in the same container type
-            return new DBusResult<>(null, result.error());
-        }
-
-        return new DBusResult<>(result.value(), null);
     }
 
     /**
@@ -171,19 +163,11 @@ public class Collection extends DBusMessageHandler<org.purejava.secret.interface
      * @return The displayable label of this collection, in case the DBus call succeeded, the DBus error otherwise.
      */
     public DBusResult<String> getLabel() {
-
-        DBusResult<String> result = dBusCall(
+        return dBusCall(
                 "Get(Label)",
                 getDBusPath(),
                 () -> properties.Get(Static.Interfaces.COLLECTION, "Label")
         );
-
-        if (!result.isSuccess()) {
-            // propagate error wrapped in the same container type
-            return new DBusResult<>(null, result.error());
-        }
-
-        return new DBusResult<>(result.value(), null);
     }
 
     public void setLabel(String value) {
@@ -210,18 +194,11 @@ public class Collection extends DBusMessageHandler<org.purejava.secret.interface
      * @return The unix time when the collection was created, in case the DBus call succeeded, the DBus error otherwise.
      */
     public DBusResult<UInt64> getCreated() {
-
-        DBusResult<UInt64> result = dBusCall(
+        return dBusCall(
                 "Get(Created)",
                 getDBusPath(),
                 () -> properties.Get(Static.Interfaces.COLLECTION, "Created")
         );
-
-        if (!result.isSuccess()) {
-            return new DBusResult<>(null, result.error());
-        }
-
-        return new DBusResult<>(result.value(), null);
     }
 
     /**
@@ -230,18 +207,11 @@ public class Collection extends DBusMessageHandler<org.purejava.secret.interface
      * @return The unix time when the collection was last modified, in case the DBus call succeeded, the DBus error otherwise.
      */
     public DBusResult<UInt64> getModified() {
-
-        DBusResult<UInt64> result = dBusCall(
+        return dBusCall(
                 "Get(Modified)",
                 getDBusPath(),
                 () -> properties.Get(Static.Interfaces.COLLECTION, "Modified")
         );
-
-        if (!result.isSuccess()) {
-            return new DBusResult<>(null, result.error());
-        }
-
-        return new DBusResult<>(result.value(), null);
     }
 
     public String getDBusPath() {
