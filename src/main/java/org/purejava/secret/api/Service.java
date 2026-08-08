@@ -119,6 +119,10 @@ public class Service extends DBusMessageHandler<org.purejava.secret.interfaces.S
                 } else {
                     var unlocked = Util.promptAndGetResultAsArrayList(promptPath);
 
+                    if (unlocked.isEmpty()) {
+                        SERVICE_LOG.warn("Unlock prompt was dismissed");
+                    }
+
                     for (DBusPath path : unlocked) {
                         SERVICE_LOG.debug("Object {} was unlocked", path.getPath());
                     }

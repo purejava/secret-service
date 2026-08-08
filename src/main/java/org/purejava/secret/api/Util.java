@@ -100,8 +100,13 @@ public class Util {
 
         Object value = variant.getValue();
 
+        if (value instanceof List<?> list && list.isEmpty()) {
+            // Prompt was dismissed
+            return new ArrayList<>();
+        }
+
         // Ensure all elements are DBusPath
-        if (value instanceof List<?> list && !list.isEmpty() && list.getFirst() instanceof DBusPath) {
+        if (value instanceof List<?> list && list.getFirst() instanceof DBusPath) {
             @SuppressWarnings("unchecked")
             List<DBusPath> dbusPaths = (List<DBusPath>) list;
             return new ArrayList<>(dbusPaths);
