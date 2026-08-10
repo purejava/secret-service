@@ -4,6 +4,7 @@
 [![Java CI with Gradle](https://github.com/purejava/secret-service/actions/workflows/build_main.yml/badge.svg)](https://github.com/purejava/secret-service/actions/workflows/build_main.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=purejava_secret-service&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=purejava_secret-service)
 [![Maven Central](https://img.shields.io/maven-central/v/org.purejava/secret-service.svg?label=Maven%20Central)](https://central.sonatype.com/search?q=secret-service&smo=true&namespace=org.purejava)
+[![javadoc](https://javadoc.io/badge2/org.purejava/secret-service/javadoc.svg)](https://javadoc.io/doc/org.purejava/secret-service)
 [![License](https://img.shields.io/github/license/purejava/secret-service.svg)](https://github.com/purejava/secret-service/blob/main/LICENSE)
 <a href="#supported-platforms"><img alt="Linux" src="https://img.shields.io/badge/Linux-supported-blue.svg" /></a>
 
