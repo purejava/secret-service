@@ -1,0 +1,44 @@
+name: Update dependency verification metadata
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+permissions:
+  contents: write
+
+jobs:
+  update-verification-metadata:
+    if: >
+      github.actor == 'dependabot[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Dependabot branch
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Setup Java
+        uses: actions/setup-java@v5.6.0
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@3f131e8634966bd73d06cc69884922b02e6faf92 # v6
+
+      - name: Update verification metadata
+        run: ./gradlew --write-verification-metadata sha256
+
+      - name: Commit updated verification metadata
+        run: |
+          if ! git diff --quiet gradle/verification-metadata.xml; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+            git add gradle/verification-metadata.xml
+            git commit -m "Update verification-metadata.xml"
+            git push
+          fi
