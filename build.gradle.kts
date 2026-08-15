@@ -7,7 +7,7 @@ plugins {
     id("maven-publish")
     id("signing")
     id("com.adarshr.test-logger") version "4.0.0"
-    id("org.sonarqube") version "7.3.1.8318"
+    id("org.sonarqube") version "7.4.0.8496"
 }
 
 group = "org.purejava"
