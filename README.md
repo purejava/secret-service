@@ -18,7 +18,7 @@ Add `secret-service` as a dependency to your project.
 
 ## Gradle
 ```gradle
-implementation group: 'org.purejava', name: 'secret-service', version: '1.2.0'
+implementation group: 'org.purejava', name: 'secret-service', version: '1.3.0'
 ```
 ## Maven
 
@@ -26,7 +26,7 @@ implementation group: 'org.purejava', name: 'secret-service', version: '1.2.0'
 <dependency>
    <groupId>org.purejava</groupId>
    <artifactId>secret-service</artifactId>
-   <version>1.2.0</version>
+   <version>1.3.0</version>
 </dependency>
 ```
 
