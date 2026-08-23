@@ -81,6 +81,26 @@ public class Item extends DBusMessageHandler<org.purejava.secret.interfaces.Item
             ITEM_LOG.error("Cannot getSecret as required session is missing");
             return null;
         }
+
+        // This is a workaround for kwallet bug https://bugs.kde.org/show_bug.cgi?id=524650
+        // kwallet returns a secret, even, when the item is locked
+        // This workaround returns <code>null</code> on a locked item,
+        // in accordance with the Secret Service API
+        switch (isLocked()) {
+            case DBusResult.Failure<Boolean> failure -> {
+                return null;
+            }
+
+            case DBusResult.Success<Boolean> success when success.value() -> {
+                ITEM_LOG.debug("Cannot get secret for locked item {}", getDBusPath());
+                return null;
+            }
+
+            case DBusResult.Success<Boolean> success -> {
+                // Item is unlocked -> continue with GetSecret
+            }
+        }
+
         var secret = dBusCall("GetSecret", getDBusPath(), () -> remote.GetSecret(session));
         switch (secret) {
             case DBusResult.Failure<?> failure -> {

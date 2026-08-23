@@ -267,6 +267,31 @@ public class Service extends DBusMessageHandler<org.purejava.secret.interfaces.S
             SERVICE_LOG.error("Cannot getSecrets as required session is missing");
             return null;
         }
+
+        // This is a workaround for kwallet bug https://bugs.kde.org/show_bug.cgi?id=524650
+        // kwallet returns a map of secrets, even, when on of the items is locked
+        // This workaround returns an empty map on a locked item,
+        // in accordance with the Secret Service API
+        for (var itemPath : items) {
+            var item = new Item(itemPath);
+
+            switch (item.isLocked()) {
+                case DBusResult.Failure<Boolean> failure -> {
+                    return new DBusResult.Failure<>(failure.error());
+                }
+
+                case DBusResult.Success<Boolean> success when success.value() -> {
+                    SERVICE_LOG.debug("Cannot get secrets as item {} is locked", itemPath);
+                    return new DBusResult.Success<>(Map.of());
+                }
+
+                case DBusResult.Success<Boolean> success -> {
+                    // Item is unlocked
+                }
+            }
+        }
+
+        // All Items are unlocked -> continue with GetSecrets
         return dBusCall("GetSecrets", getDBusPath(), () -> remote.GetSecrets(items, session));
     }
 
