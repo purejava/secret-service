@@ -6,6 +6,7 @@ import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.interfaces.Properties;
 import org.freedesktop.dbus.types.UInt64;
 import org.freedesktop.dbus.types.Variant;
+import org.purejava.secret.api.errors.SecretIsLockedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,9 +84,7 @@ public class Item extends DBusMessageHandler<org.purejava.secret.interfaces.Item
         }
 
         // This is a workaround for kwallet bug https://bugs.kde.org/show_bug.cgi?id=524650
-        // kwallet returns a secret, even, when the item is locked
-        // This workaround returns <code>null</code> on a locked item,
-        // in accordance with the Secret Service API
+        // kwallet returns a secret even when the item is locked
         switch (isLocked()) {
             case DBusResult.Failure<Boolean> failure -> {
                 return null;
@@ -93,7 +92,7 @@ public class Item extends DBusMessageHandler<org.purejava.secret.interfaces.Item
 
             case DBusResult.Success<Boolean> success when success.value() -> {
                 ITEM_LOG.debug("Cannot get secret for locked item {}", getDBusPath());
-                return null;
+                throw new SecretIsLockedException("GetSecret", getDBusPath(), null);
             }
 
             case DBusResult.Success<Boolean> success -> {
