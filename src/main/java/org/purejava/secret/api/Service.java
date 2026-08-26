@@ -269,9 +269,10 @@ public class Service extends DBusMessageHandler<org.purejava.secret.interfaces.S
         }
 
         // This is a workaround for kwallet bug https://bugs.kde.org/show_bug.cgi?id=524650
-        // kwallet returns a map of secrets, even, when on of the items is locked
-        // This workaround returns an empty map on a locked item,
-        // in accordance with the Secret Service API
+        // kwallet returns secrets even when items are locked.
+        // Only unlocked items are passed to GetSecrets.
+        var unlockedItems = new ArrayList<DBusPath>();
+
         for (var itemPath : items) {
             var item = new Item(itemPath);
 
@@ -280,19 +281,19 @@ public class Service extends DBusMessageHandler<org.purejava.secret.interfaces.S
                     return new DBusResult.Failure<>(failure.error());
                 }
 
-                case DBusResult.Success<Boolean> success when success.value() -> {
-                    SERVICE_LOG.debug("Cannot get secrets as item {} is locked", itemPath);
-                    return new DBusResult.Success<>(Map.of());
-                }
+                case DBusResult.Success<Boolean> success when success.value() ->
+                    SERVICE_LOG.debug("Skipping locked item {}", itemPath);
 
-                case DBusResult.Success<Boolean> success -> {
-                    // Item is unlocked
-                }
+                case DBusResult.Success<Boolean> success -> unlockedItems.add(itemPath);
             }
         }
 
-        // All Items are unlocked -> continue with GetSecrets
-        return dBusCall("GetSecrets", getDBusPath(), () -> remote.GetSecrets(items, session));
+        if (unlockedItems.isEmpty()) {
+            return new DBusResult.Success<>(Map.of());
+        }
+
+        return dBusCall(
+            "GetSecrets", getDBusPath(), () -> remote.GetSecrets(unlockedItems, session));
     }
 
     /**
