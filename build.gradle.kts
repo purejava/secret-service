@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "org.purejava"
-version = "1.3.1"
+version = "1.3.2-SNAPSHOT"
 description = "A Java library for managing secrets on Linux using the secret service DBus interface"
 
 val releaseGradlePluginToken: String = System.getenv("RELEASE_GRADLE_PLUGIN_TOKEN") ?: ""
