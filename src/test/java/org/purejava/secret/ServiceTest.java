@@ -103,17 +103,9 @@ class ServiceTest {
         DBusPath collectionPath = createCollectionResult.a;
         DBusPath collectionPrompt = createCollectionResult.b;
         assertEquals("/", collectionPath.getPath());
-        if (ExpectedDesktop.isDesktop("KDE")) {
-            var result =
-                Util.promptAndGetResultAsArrayList(collectionPrompt);
-            assertFalse(result.isEmpty());
-            assertEquals("/", result.getFirst().getPath());
-        }
-        if (ExpectedDesktop.isDesktop("GNOME")) {
-            DBusPath result =
-                Util.promptAndGetResultAsDBusPath(collectionPrompt);
-            assertEquals("/", result.getPath());
-        }
+        var result =
+            Util.promptAndGetResultAsDBusPath(collectionPrompt);
+        assertEquals("/", result.getPath());
     }
 
     @Test
