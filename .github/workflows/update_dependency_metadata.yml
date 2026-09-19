@@ -53,6 +53,6 @@ jobs:
             git config user.name "Ralph Plawetzki"
             git config user.email "ralph@purejava.org"
             git add gradle/verification-metadata.xml
-            git commit -S -m "Update verification-metadata.xml"
+            git commit -S -m "Update verification-metadata.xml [skip ci]"
             git push
           fi
