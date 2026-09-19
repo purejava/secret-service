@@ -29,16 +29,30 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6
 
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@2dc316deee8e90f13e1a351ab510b4d5bc0c82cd # v7
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+
+      - name: Setup GPG key information
+        run: |
+          mkdir -p ~/.gradle
+          echo "signing.gnupg.passphrase=${GPG_SIGNING_KEY_PW}" >> ~/.gradle/gradle.properties
+        env:
+          GPG_SIGNING_KEY_PW: ${{ secrets.GPG_PASSPHRASE }}
+
       - name: Update verification metadata
         run: ./gradlew --write-verification-metadata sha256
 
       - name: Commit updated verification metadata
         run: |
           if ! git diff --quiet gradle/verification-metadata.xml; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
+            git config user.name "Ralph Plawetzki"
+            git config user.email "ralph@purejava.org"
             git add gradle/verification-metadata.xml
-            git commit -m "Update verification-metadata.xml"
+            git commit -S -m "Update verification-metadata.xml"
             git push
           fi
