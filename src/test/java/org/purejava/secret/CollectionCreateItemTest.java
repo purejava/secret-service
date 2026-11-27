@@ -132,10 +132,10 @@ class CollectionCreateItemTest {
             myCollection.getModified(),
             "Failed to retrieve collection modification time"
         ).longValue();
-        if (ExpectedDesktop.isDesktop("KDE")) {
+        if (SecretServiceProvider.isProvider(SecretServiceProvider.KWALLET)) {
             assertTrue(modified >= created);
         }
-        if (ExpectedDesktop.isDesktop("GNOME")) {
+        if (SecretServiceProvider.isProvider(SecretServiceProvider.GNOME_KEYRING)) {
             assertEquals(0L, modified);
         }
         var serviceSearchResult = requireSuccess(

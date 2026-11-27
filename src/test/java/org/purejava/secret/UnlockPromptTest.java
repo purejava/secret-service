@@ -84,14 +84,14 @@ class UnlockPromptTest {
             "Failed to unlock collection"
         );
         DBusPath unlockPrompt = unlockResult.b;
-        if (ExpectedDesktop.isDesktop("KDE")) {
+        if (SecretServiceProvider.isProvider(SecretServiceProvider.KWALLET)) {
             assertNotEquals("/", unlockPrompt.getPath());
             var unlocked =
                 Util.promptAndGetResultAsArrayList(unlockPrompt);
             assertFalse(unlocked.isEmpty());
             assertEquals("/", unlocked.getFirst().getPath());
         }
-        if (ExpectedDesktop.isDesktop( "GNOME")) {
+        if (SecretServiceProvider.isProvider(SecretServiceProvider.GNOME_KEYRING)) {
             assertNotEquals("/", unlockPrompt.getPath());
             var unlocked =
                 Util.promptAndGetResultAsArrayList(unlockPrompt);

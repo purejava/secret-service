@@ -84,7 +84,8 @@ class ServiceLockTest {
             "Failed to unlock collection"
         );
         DBusPath unlockPrompt = unlockResult.b;
-        if (ExpectedDesktop.isDesktop("KDE")) {
+        if (SecretServiceProvider.isProvider(SecretServiceProvider.KWALLET) ||
+            SecretServiceProvider.isProvider(SecretServiceProvider.OO7)) {
             assertNotEquals("/", unlockPrompt.getPath());
             var unlocked =
                 Util.promptAndGetResultAsArrayList(unlockPrompt);
@@ -94,7 +95,7 @@ class ServiceLockTest {
                 unlocked.getFirst().getPath()
             );
         }
-        if (ExpectedDesktop.isDesktop("GNOME")) {
+        if (SecretServiceProvider.isProvider(SecretServiceProvider.GNOME_KEYRING)) {
             assertEquals("/", unlockPrompt.getPath());
         }
         DBusPath deletePrompt = requireSuccess(
