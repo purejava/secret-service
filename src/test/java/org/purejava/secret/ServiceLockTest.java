@@ -17,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.purejava.secret.SecretServiceProvider.*;
 
 class ServiceLockTest {
 
@@ -26,11 +25,9 @@ class ServiceLockTest {
         String message) {
 
         return switch (result) {
-            case DBusMessageHandler.DBusResult.Success<T> success ->
-                success.value();
+            case DBusMessageHandler.DBusResult.Success<T> success -> success.value();
 
-            case DBusMessageHandler.DBusResult.Failure<T> failure ->
-                fail(message, failure.error());
+            case DBusMessageHandler.DBusResult.Failure<T> failure -> fail(message, failure.error());
         };
     }
 
@@ -59,17 +56,21 @@ class ServiceLockTest {
         assertEquals("/", collectionPath.getPath());
         DBusPath promptResult =
             Util.promptAndGetResultAsDBusPath(collectionPrompt);
-        assertEquals(Static.DBusPath.COLLECTION + "/" + NAME, promptResult.getPath());
-        var myCollection = new Collection(
-            new DBusPath(Static.DBusPath.COLLECTION + "/" + NAME)
-        );
+        var provider = SecretServiceProvider.detect();
+        switch (provider) {
+            case KWALLET, GNOME_KEYRING ->
+                assertEquals(Static.DBusPath.COLLECTION + "/" + LABEL, promptResult.getPath());
+            case OO7 -> assertEquals(Static.DBusPath.COLLECTION + "/" + NAME, promptResult.getPath());
+            default -> fail("Unsupported Secret Service provider");
+        }
+        var myCollection = new Collection(promptResult);
         boolean initiallyLocked = requireSuccess(
             myCollection.isLocked(),
             "Failed to determine initial collection lock state"
         );
         assertFalse(initiallyLocked);
         List<DBusPath> toLock = new ArrayList<>();
-        toLock.add(new DBusPath(Static.DBusPath.COLLECTION + "/" + NAME));
+        toLock.add(promptResult);
         requireSuccess(
             context.service.lock(toLock),
             "Failed to lock collection"
@@ -84,19 +85,29 @@ class ServiceLockTest {
             "Failed to unlock collection"
         );
         DBusPath unlockPrompt = unlockResult.b;
-        if (SecretServiceProvider.isProvider(KWALLET) ||
-            SecretServiceProvider.isProvider(OO7)) {
-            assertNotEquals("/", unlockPrompt.getPath());
-            var unlocked =
-                Util.promptAndGetResultAsArrayList(unlockPrompt);
-            assertFalse(unlocked.isEmpty());
-            assertEquals(
-                Static.DBusPath.COLLECTION + "/" + NAME,
-                unlocked.getFirst().getPath()
-            );
-        }
-        if (SecretServiceProvider.isProvider(GNOME_KEYRING)) {
-            assertEquals("/", unlockPrompt.getPath());
+        switch (provider) {
+            case KWALLET -> {
+                assertNotEquals("/", unlockPrompt.getPath());
+                var unlocked =
+                    Util.promptAndGetResultAsArrayList(unlockPrompt);
+                assertFalse(unlocked.isEmpty());
+                assertEquals(
+                    Static.DBusPath.COLLECTION + "/" + LABEL,
+                    unlocked.getFirst().getPath()
+                );
+            }
+            case OO7 -> {
+                assertNotEquals("/", unlockPrompt.getPath());
+                var unlocked =
+                    Util.promptAndGetResultAsArrayList(unlockPrompt);
+                assertFalse(unlocked.isEmpty());
+                assertEquals(
+                    Static.DBusPath.COLLECTION + "/" + NAME,
+                    unlocked.getFirst().getPath()
+                );
+            }
+            case GNOME_KEYRING -> assertEquals("/", unlockPrompt.getPath());
+            default -> fail("Unsupported Secret Service provider");
         }
         DBusPath deletePrompt = requireSuccess(
             myCollection.delete(),
