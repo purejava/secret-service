@@ -34,10 +34,8 @@ class ServiceTest {
         };
     }
 
-    private static final String NAME = "TESTmyCollectionEmptyPassword";
-
-    private static final String COLLECTION_PATH =
-        "/org/freedesktop/secrets/collection/TESTmyCollectionEmptyPassword";
+    private static final String LABEL = "TESTmyCollectionEmptyPassword";
+    private static final String NAME = "testmycollectionemptypassword";
 
     private Context context;
 
@@ -118,7 +116,7 @@ class ServiceTest {
             handlerCalled.set(true);
             handlerCollectionPath[0] = collection;
         });
-        var properties = Collection.createProperties(NAME);
+        var properties = Collection.createProperties(LABEL);
         var createCollectionResult = requireSuccess(
             context.service.createCollection(properties, ""),
             "Failed to create collection"
@@ -128,7 +126,7 @@ class ServiceTest {
         assertEquals("/", collectionPath.getPath());
         DBusPath promptResult =
             Util.promptAndGetResultAsDBusPath(collectionPrompt);
-        assertEquals(COLLECTION_PATH, promptResult.getPath());
+        assertEquals(Static.DBusPath.COLLECTION + "/" + NAME, promptResult.getPath());
         var myCollection = new Collection(
             new DBusPath(Static.DBusPath.COLLECTION + "/" + NAME)
         );
@@ -136,7 +134,7 @@ class ServiceTest {
         assertTrue(handlerCalled.get());
         assertNotNull(handlerCollectionPath[0]);
         assertEquals(
-            COLLECTION_PATH,
+            Static.DBusPath.COLLECTION + "/" + NAME,
             handlerCollectionPath[0].getPath()
         );
         String label = requireSuccess(

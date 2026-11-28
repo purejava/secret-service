@@ -34,9 +34,8 @@ class ServiceLockTest {
         };
     }
 
-    private static final String NAME = "TESTLock";
-    private static final String COLLECTION_PATH =
-        "/org/freedesktop/secrets/collection/TESTLock";
+    private static final String LABEL = "TESTLock";
+    private static final String NAME = "testlock";
 
     private Context context;
 
@@ -50,7 +49,7 @@ class ServiceLockTest {
     @DisplayName("Create collection, lock and unlock it")
         // This collection should be created with an empty password.
     void createCollectionAndLock() {
-        var properties = Collection.createProperties(NAME);
+        var properties = Collection.createProperties(LABEL);
         var createCollectionResult = requireSuccess(
             context.service.createCollection(properties, ""),
             "Failed to create collection"
@@ -60,7 +59,7 @@ class ServiceLockTest {
         assertEquals("/", collectionPath.getPath());
         DBusPath promptResult =
             Util.promptAndGetResultAsDBusPath(collectionPrompt);
-        assertEquals(COLLECTION_PATH, promptResult.getPath());
+        assertEquals(Static.DBusPath.COLLECTION + "/" + NAME, promptResult.getPath());
         var myCollection = new Collection(
             new DBusPath(Static.DBusPath.COLLECTION + "/" + NAME)
         );
@@ -70,7 +69,7 @@ class ServiceLockTest {
         );
         assertFalse(initiallyLocked);
         List<DBusPath> toLock = new ArrayList<>();
-        toLock.add(new DBusPath(COLLECTION_PATH));
+        toLock.add(new DBusPath(Static.DBusPath.COLLECTION + "/" + NAME));
         requireSuccess(
             context.service.lock(toLock),
             "Failed to lock collection"
@@ -92,7 +91,7 @@ class ServiceLockTest {
                 Util.promptAndGetResultAsArrayList(unlockPrompt);
             assertFalse(unlocked.isEmpty());
             assertEquals(
-                COLLECTION_PATH,
+                Static.DBusPath.COLLECTION + "/" + NAME,
                 unlocked.getFirst().getPath()
             );
         }

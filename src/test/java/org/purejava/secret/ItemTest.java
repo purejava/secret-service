@@ -41,9 +41,8 @@ class ItemTest {
         };
     }
 
-    private static final String NAME = "TESTCreateItem";
-    private static final String COLLECTION_PATH =
-        "/org/freedesktop/secrets/collection/TESTCreateItem";
+    private static final String LABEL = "TESTCreateItem";
+    private static final String NAME = "testcreateitem";
 
     private Context context;
 
@@ -67,7 +66,7 @@ class ItemTest {
         boolean sessionOpened = session.openSession();
         assertTrue(sessionOpened);
         session.generateSessionKey();
-        var collectionProperties = Collection.createProperties(NAME);
+        var collectionProperties = Collection.createProperties(LABEL);
         var createCollectionResult = requireSuccess(
             context.service.createCollection(collectionProperties, ""),
             "Failed to create collection"
@@ -77,7 +76,7 @@ class ItemTest {
         assertEquals("/", collectionPath.getPath());
         DBusPath promptResult =
             Util.promptAndGetResultAsDBusPath(collectionPrompt);
-        assertEquals(COLLECTION_PATH, promptResult.getPath());
+        assertEquals(Static.DBusPath.COLLECTION + "/" + NAME, promptResult.getPath());
         var myCollection = new Collection(
             new DBusPath(Static.DBusPath.COLLECTION + "/" + NAME)
         );
@@ -90,14 +89,14 @@ class ItemTest {
             myCollection.createItem(itemProperties, secret, false),
             "Failed to create item");
         DBusPath createdItemPath = createItemResult.a;
-        assertTrue(createdItemPath.getPath().startsWith(COLLECTION_PATH + "/"));
+        assertTrue(createdItemPath.getPath().startsWith(Static.DBusPath.COLLECTION + "/" + NAME + "/"));
         var foundItems = requireSuccess(
             myCollection.searchItems(attributes),
             "Failed to search collection items"
         );
         assertFalse(foundItems.isEmpty());
         DBusPath relevantPath = foundItems.getFirst();
-        assertTrue(relevantPath.getPath().startsWith(COLLECTION_PATH + "/"));
+        assertTrue(relevantPath.getPath().startsWith(Static.DBusPath.COLLECTION + "/" + NAME + "/"));
         var item = new Item(relevantPath);
         var encryptedSecret = item.getSecret(session.getSession());
         char[] decryptedSecret = session.decrypt(encryptedSecret);

@@ -36,8 +36,8 @@ class CollectionCreateItemTest {
         };
     }
 
-    final String NAME = "TESTCreateItem";
-    final String COLLECTION_PATH = "/org/freedesktop/secrets/collection/TESTCreateItem";
+    final String LABEL = "TESTCreateItem";
+    final String NAME = "testcreateitem";
     private Context context;
 
     @BeforeEach
@@ -61,7 +61,7 @@ class CollectionCreateItemTest {
         boolean sessionOpened = session.openSession();
         assertTrue(sessionOpened);
         session.generateSessionKey();
-        var props = Collection.createProperties(NAME);
+        var props = Collection.createProperties(LABEL);
         long currentTime = new Date().getTime() / 1000L;
         var createCollectionResult = requireSuccess(
             context.service.createCollection(props, ""),
@@ -72,7 +72,7 @@ class CollectionCreateItemTest {
         assertEquals("/", collectionPath.getPath());
         DBusPath promptResult =
             Util.promptAndGetResultAsDBusPath(collectionPrompt);
-        assertEquals(COLLECTION_PATH, promptResult.getPath());
+        assertEquals(Static.DBusPath.COLLECTION + "/" + NAME, promptResult.getPath());
         var myCollection = new Collection(
             new DBusPath(Static.DBusPath.COLLECTION + "/" + NAME)
         );
@@ -93,7 +93,7 @@ class CollectionCreateItemTest {
         );
         DBusPath createdItemPath = createItemResult.a;
         assertTrue(
-            createdItemPath.getPath().startsWith(COLLECTION_PATH + "/")
+            createdItemPath.getPath().startsWith(Static.DBusPath.COLLECTION + "/" + NAME + "/")
         );
         var foundItems = requireSuccess(
             myCollection.searchItems(attributes),
@@ -101,13 +101,13 @@ class CollectionCreateItemTest {
         );
         assertFalse(foundItems.isEmpty());
         assertTrue(
-            foundItems.getFirst().getPath().startsWith(COLLECTION_PATH + "/")
+            foundItems.getFirst().getPath().startsWith(Static.DBusPath.COLLECTION + "/" + NAME + "/")
         );
         Thread.sleep(200);
         assertTrue(handlerCalled.get());
         assertNotNull(handlerItemPath[0]);
         assertTrue(
-            handlerItemPath[0].getPath().startsWith(COLLECTION_PATH + "/")
+            handlerItemPath[0].getPath().startsWith(Static.DBusPath.COLLECTION + "/" + NAME + "/")
         );
         assertEquals(
             createdItemPath.getPath(),
@@ -121,7 +121,7 @@ class CollectionCreateItemTest {
         assertTrue(
             collectionItems.getFirst()
                 .getPath()
-                .startsWith(COLLECTION_PATH + "/")
+                .startsWith(Static.DBusPath.COLLECTION + "/" + NAME + "/")
         );
         long created = requireSuccess(
             myCollection.getCreated(),

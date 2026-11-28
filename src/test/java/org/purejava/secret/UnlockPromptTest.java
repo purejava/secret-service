@@ -33,9 +33,8 @@ class UnlockPromptTest {
         };
     }
 
-    private static final String NAME = "TESTPromtGivePWandDismissLater";
-    private static final String COLLECTION_PATH =
-        "/org/freedesktop/secrets/collection/TESTPromtGivePWandDismissLater";
+    private static final String LABEL = "TESTPromtGivePWandDismissLater";
+    private static final String NAME = "testpromtgivepwanddismisslater";
 
     private Context context;
 
@@ -49,7 +48,7 @@ class UnlockPromptTest {
     @DisplayName("Create collection, lock and unlock it, but dismiss the prompt")
         // This collection should be created with a password.
     void createCollectionAndTestPrompt() {
-        var properties = Collection.createProperties(NAME);
+        var properties = Collection.createProperties(LABEL);
         var createCollectionResult = requireSuccess(
             context.service.createCollection(properties, ""),
             "Failed to create collection"
@@ -59,7 +58,7 @@ class UnlockPromptTest {
         assertEquals("/", collectionPath.getPath());
         DBusPath promptResult =
             Util.promptAndGetResultAsDBusPath(collectionPrompt);
-        assertEquals(COLLECTION_PATH, promptResult.getPath());
+        assertEquals(Static.DBusPath.COLLECTION + "/" + NAME, promptResult.getPath());
         var myCollection = new Collection(
             new DBusPath(Static.DBusPath.COLLECTION + "/" + NAME)
         );
@@ -69,7 +68,7 @@ class UnlockPromptTest {
         );
         assertFalse(initiallyLocked);
         List<DBusPath> toLock = new ArrayList<>();
-        toLock.add(new DBusPath(COLLECTION_PATH));
+        toLock.add(new DBusPath(Static.DBusPath.COLLECTION + "/" + NAME));
         requireSuccess(
             context.service.lock(toLock),
             "Failed to lock collection"
