@@ -76,10 +76,13 @@ class ItemTest {
         assertEquals("/", collectionPath.getPath());
         DBusPath promptResult =
             Util.promptAndGetResultAsDBusPath(collectionPrompt);
-        assertEquals(Static.DBusPath.COLLECTION + "/" + NAME, promptResult.getPath());
-        var myCollection = new Collection(
-            new DBusPath(Static.DBusPath.COLLECTION + "/" + NAME)
-        );
+        var provider = SecretServiceProvider.detect();
+        switch (provider) {
+            case KWALLET, GNOME_KEYRING -> assertEquals(Static.DBusPath.COLLECTION + "/" + LABEL, promptResult.getPath());
+            case OO7 -> assertEquals(Static.DBusPath.COLLECTION + "/" + NAME, promptResult.getPath());
+            default -> fail("Unsupported Secret Service provider");
+        }
+        var myCollection = new Collection(promptResult);
         Map<String, String> attributes = new HashMap<>();
         attributes.put("Attrib1", "Value1");
         attributes.put("Attrib2", "Value2");
@@ -89,14 +92,22 @@ class ItemTest {
             myCollection.createItem(itemProperties, secret, false),
             "Failed to create item");
         DBusPath createdItemPath = createItemResult.a;
-        assertTrue(createdItemPath.getPath().startsWith(Static.DBusPath.COLLECTION + "/" + NAME + "/"));
+        switch (provider) {
+            case KWALLET, GNOME_KEYRING -> assertTrue(createdItemPath.getPath().startsWith(Static.DBusPath.COLLECTION + "/" + LABEL + "/"));
+            case OO7 -> assertTrue(createdItemPath.getPath().startsWith(Static.DBusPath.COLLECTION + "/" + NAME + "/"));
+            default -> fail("Unsupported Secret Service provider");
+        }
         var foundItems = requireSuccess(
             myCollection.searchItems(attributes),
             "Failed to search collection items"
         );
         assertFalse(foundItems.isEmpty());
         DBusPath relevantPath = foundItems.getFirst();
-        assertTrue(relevantPath.getPath().startsWith(Static.DBusPath.COLLECTION + "/" + NAME + "/"));
+        switch (provider) {
+            case KWALLET, GNOME_KEYRING -> assertTrue(relevantPath.getPath().startsWith(Static.DBusPath.COLLECTION + "/" + LABEL + "/"));
+            case OO7 -> assertTrue(relevantPath.getPath().startsWith(Static.DBusPath.COLLECTION + "/" + NAME + "/"));
+            default -> fail("Unsupported Secret Service provider");
+        }
         var item = new Item(relevantPath);
         var encryptedSecret = item.getSecret(session.getSession());
         char[] decryptedSecret = session.decrypt(encryptedSecret);
