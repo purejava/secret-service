@@ -76,9 +76,7 @@ class CollectionCreateItemTest {
             case OO7 -> assertEquals(Static.DBusPath.COLLECTION + "/" + NAME, promptResult.getPath());
             default -> fail("Unsupported Secret Service provider");
         }
-        var myCollection = new Collection(
-            new DBusPath(Static.DBusPath.COLLECTION + "/" + LABEL)
-        );
+        var myCollection = new Collection(promptResult);
         AtomicBoolean handlerCalled = new AtomicBoolean(false);
         DBusPath[] handlerItemPath = new DBusPath[1];
         myCollection.addItemCreatedHandler(item -> {
@@ -161,7 +159,8 @@ class CollectionCreateItemTest {
             myCollection.getModified(),
             "Failed to retrieve collection modification time"
         ).longValue();
-        if (SecretServiceProvider.isProvider(SecretServiceProvider.KWALLET)) {
+        if (SecretServiceProvider.isProvider(SecretServiceProvider.KWALLET) ||
+            SecretServiceProvider.isProvider(SecretServiceProvider.OO7)) {
             assertTrue(modified >= created);
         }
         if (SecretServiceProvider.isProvider(SecretServiceProvider.GNOME_KEYRING)) {
