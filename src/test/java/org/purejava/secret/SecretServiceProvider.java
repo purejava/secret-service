@@ -7,13 +7,13 @@ import org.freedesktop.dbus.types.UInt32;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.purejava.secret.api.Static.Service.SECRETS;
+
 public enum SecretServiceProvider {
     KWALLET,
     GNOME_KEYRING,
     OO7,
     UNKNOWN;
-
-    private static final String SERVICE = "org.freedesktop.secrets";
 
     public static SecretServiceProvider detect() {
         try (var connection = DBusConnectionBuilder.forSessionBus()
@@ -25,11 +25,11 @@ public enum SecretServiceProvider {
                     "/org/freedesktop/DBus",
                     DBus.class);
 
-            if (!dbus.NameHasOwner(SERVICE)) {
-                dbus.StartServiceByName(SERVICE, new UInt32(0));
+            if (!dbus.NameHasOwner(SECRETS)) {
+                dbus.StartServiceByName(SECRETS, new UInt32(0));
             }
 
-            var pid = dbus.GetConnectionUnixProcessID(SERVICE);
+            var pid = dbus.GetConnectionUnixProcessID(SECRETS);
 
             var executable = Files.readSymbolicLink(
                     Path.of("/proc", pid.toString(), "exe"))

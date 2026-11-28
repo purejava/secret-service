@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.purejava.secret.SecretServiceProvider.*;
 
 class ServiceLockTest {
 
@@ -84,8 +85,8 @@ class ServiceLockTest {
             "Failed to unlock collection"
         );
         DBusPath unlockPrompt = unlockResult.b;
-        if (SecretServiceProvider.isProvider(SecretServiceProvider.KWALLET) ||
-            SecretServiceProvider.isProvider(SecretServiceProvider.OO7)) {
+        if (SecretServiceProvider.isProvider(KWALLET) ||
+            SecretServiceProvider.isProvider(OO7)) {
             assertNotEquals("/", unlockPrompt.getPath());
             var unlocked =
                 Util.promptAndGetResultAsArrayList(unlockPrompt);
@@ -95,7 +96,7 @@ class ServiceLockTest {
                 unlocked.getFirst().getPath()
             );
         }
-        if (SecretServiceProvider.isProvider(SecretServiceProvider.GNOME_KEYRING)) {
+        if (SecretServiceProvider.isProvider(GNOME_KEYRING)) {
             assertEquals("/", unlockPrompt.getPath());
         }
         DBusPath deletePrompt = requireSuccess(
