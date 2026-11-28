@@ -26,11 +26,9 @@ class ServiceTest {
         String message) {
 
         return switch (result) {
-            case DBusMessageHandler.DBusResult.Success<T> success ->
-                success.value();
+            case DBusMessageHandler.DBusResult.Success<T> success -> success.value();
 
-            case DBusMessageHandler.DBusResult.Failure<T> failure ->
-                fail(message, failure.error());
+            case DBusMessageHandler.DBusResult.Failure<T> failure -> fail(message, failure.error());
         };
     }
 
@@ -126,22 +124,33 @@ class ServiceTest {
         assertEquals("/", collectionPath.getPath());
         DBusPath promptResult =
             Util.promptAndGetResultAsDBusPath(collectionPrompt);
-        assertEquals(Static.DBusPath.COLLECTION + "/" + NAME, promptResult.getPath());
-        var myCollection = new Collection(
-            new DBusPath(Static.DBusPath.COLLECTION + "/" + NAME)
-        );
+        var provider = SecretServiceProvider.detect();
+        switch (provider) {
+            case KWALLET, GNOME_KEYRING ->
+                assertEquals(Static.DBusPath.COLLECTION + "/" + LABEL, promptResult.getPath());
+            case OO7 -> assertEquals(Static.DBusPath.COLLECTION + "/" + NAME, promptResult.getPath());
+            default -> fail("Unsupported Secret Service provider");
+        }
+        var myCollection = new Collection(promptResult);
         Thread.sleep(200);
         assertTrue(handlerCalled.get());
         assertNotNull(handlerCollectionPath[0]);
-        assertEquals(
-            Static.DBusPath.COLLECTION + "/" + NAME,
-            handlerCollectionPath[0].getPath()
-        );
+        switch (provider) {
+            case KWALLET, GNOME_KEYRING -> assertEquals(
+                Static.DBusPath.COLLECTION + "/" + LABEL,
+                handlerCollectionPath[0].getPath()
+            );
+            case OO7 -> assertEquals(
+                Static.DBusPath.COLLECTION + "/" + NAME,
+                handlerCollectionPath[0].getPath()
+            );
+            default -> fail("Unsupported Secret Service provider");
+        }
         String label = requireSuccess(
             myCollection.getLabel(),
             "Failed to retrieve collection label"
         );
-        assertEquals(NAME, label);
+        assertEquals(LABEL, label);
         String newLabel = "testlabel";
         myCollection.setLabel(newLabel);
         label = requireSuccess(
