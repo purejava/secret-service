@@ -28,11 +28,9 @@ class CollectionCreateItemTest {
         String message) {
 
         return switch (result) {
-            case DBusMessageHandler.DBusResult.Success<T> success ->
-                success.value();
+            case DBusMessageHandler.DBusResult.Success<T> success -> success.value();
 
-            case DBusMessageHandler.DBusResult.Failure<T> failure ->
-                fail(message, failure.error());
+            case DBusMessageHandler.DBusResult.Failure<T> failure -> fail(message, failure.error());
         };
     }
 
@@ -72,9 +70,14 @@ class CollectionCreateItemTest {
         assertEquals("/", collectionPath.getPath());
         DBusPath promptResult =
             Util.promptAndGetResultAsDBusPath(collectionPrompt);
-        assertEquals(Static.DBusPath.COLLECTION + "/" + NAME, promptResult.getPath());
+        var provider = SecretServiceProvider.detect();
+        switch (provider) {
+            case KWALLET, GNOME_KEYRING -> assertEquals(Static.DBusPath.COLLECTION + "/" + LABEL, promptResult.getPath());
+            case OO7 -> assertEquals(Static.DBusPath.COLLECTION + "/" + NAME, promptResult.getPath());
+            default -> fail("Unsupported Secret Service provider");
+        }
         var myCollection = new Collection(
-            new DBusPath(Static.DBusPath.COLLECTION + "/" + NAME)
+            new DBusPath(Static.DBusPath.COLLECTION + "/" + LABEL)
         );
         AtomicBoolean handlerCalled = new AtomicBoolean(false);
         DBusPath[] handlerItemPath = new DBusPath[1];
@@ -92,23 +95,41 @@ class CollectionCreateItemTest {
             "Failed to create item"
         );
         DBusPath createdItemPath = createItemResult.a;
-        assertTrue(
-            createdItemPath.getPath().startsWith(Static.DBusPath.COLLECTION + "/" + NAME + "/")
-        );
+        switch (provider) {
+            case KWALLET, GNOME_KEYRING -> assertTrue(
+                createdItemPath.getPath().startsWith(Static.DBusPath.COLLECTION + "/" + LABEL + "/")
+            );
+            case OO7 -> assertTrue(
+                createdItemPath.getPath().startsWith(Static.DBusPath.COLLECTION + "/" + NAME + "/")
+            );
+            default -> fail("Unsupported Secret Service provider");
+        }
         var foundItems = requireSuccess(
             myCollection.searchItems(attributes),
             "Failed to search collection items"
         );
         assertFalse(foundItems.isEmpty());
-        assertTrue(
-            foundItems.getFirst().getPath().startsWith(Static.DBusPath.COLLECTION + "/" + NAME + "/")
-        );
+        switch (provider) {
+            case KWALLET, GNOME_KEYRING -> assertTrue(
+                foundItems.getFirst().getPath().startsWith(Static.DBusPath.COLLECTION + "/" + LABEL + "/")
+            );
+            case OO7 -> assertTrue(
+                foundItems.getFirst().getPath().startsWith(Static.DBusPath.COLLECTION + "/" + NAME + "/")
+            );
+            default -> fail("Unsupported Secret Service provider");
+        }
         Thread.sleep(200);
         assertTrue(handlerCalled.get());
         assertNotNull(handlerItemPath[0]);
-        assertTrue(
-            handlerItemPath[0].getPath().startsWith(Static.DBusPath.COLLECTION + "/" + NAME + "/")
-        );
+        switch (provider) {
+            case KWALLET, GNOME_KEYRING -> assertTrue(
+                handlerItemPath[0].getPath().startsWith(Static.DBusPath.COLLECTION + "/" + LABEL + "/")
+            );
+            case OO7 -> assertTrue(
+                handlerItemPath[0].getPath().startsWith(Static.DBusPath.COLLECTION + "/" + NAME + "/")
+            );
+            default -> fail("Unsupported Secret Service provider");
+        }
         assertEquals(
             createdItemPath.getPath(),
             handlerItemPath[0].getPath()
@@ -118,11 +139,19 @@ class CollectionCreateItemTest {
             "Failed to retrieve collection items"
         );
         assertEquals(1, collectionItems.size());
-        assertTrue(
-            collectionItems.getFirst()
-                .getPath()
-                .startsWith(Static.DBusPath.COLLECTION + "/" + NAME + "/")
-        );
+        switch (provider) {
+            case KWALLET, GNOME_KEYRING -> assertTrue(
+                collectionItems.getFirst()
+                    .getPath()
+                    .startsWith(Static.DBusPath.COLLECTION + "/" + LABEL + "/")
+            );
+            case OO7 -> assertTrue(
+                collectionItems.getFirst()
+                    .getPath()
+                    .startsWith(Static.DBusPath.COLLECTION + "/" + NAME + "/")
+            );
+            default -> fail("Unsupported Secret Service provider");
+        }
         long created = requireSuccess(
             myCollection.getCreated(),
             "Failed to retrieve collection creation time"
