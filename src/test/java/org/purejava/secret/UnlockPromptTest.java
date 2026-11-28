@@ -25,11 +25,9 @@ class UnlockPromptTest {
         String message) {
 
         return switch (result) {
-            case DBusMessageHandler.DBusResult.Success<T> success ->
-                success.value();
+            case DBusMessageHandler.DBusResult.Success<T> success -> success.value();
 
-            case DBusMessageHandler.DBusResult.Failure<T> failure ->
-                fail(message, failure.error());
+            case DBusMessageHandler.DBusResult.Failure<T> failure -> fail(message, failure.error());
         };
     }
 
@@ -58,17 +56,21 @@ class UnlockPromptTest {
         assertEquals("/", collectionPath.getPath());
         DBusPath promptResult =
             Util.promptAndGetResultAsDBusPath(collectionPrompt);
-        assertEquals(Static.DBusPath.COLLECTION + "/" + NAME, promptResult.getPath());
-        var myCollection = new Collection(
-            new DBusPath(Static.DBusPath.COLLECTION + "/" + NAME)
-        );
+        var provider = SecretServiceProvider.detect();
+        switch (provider) {
+            case KWALLET, GNOME_KEYRING ->
+                assertEquals(Static.DBusPath.COLLECTION + "/" + LABEL, promptResult.getPath());
+            case OO7 -> assertEquals(Static.DBusPath.COLLECTION + "/" + NAME, promptResult.getPath());
+            default -> fail("Unsupported Secret Service provider");
+        }
+        var myCollection = new Collection(promptResult);
         boolean initiallyLocked = requireSuccess(
             myCollection.isLocked(),
             "Failed to determine initial collection lock state"
         );
         assertFalse(initiallyLocked);
         List<DBusPath> toLock = new ArrayList<>();
-        toLock.add(new DBusPath(Static.DBusPath.COLLECTION + "/" + NAME));
+        toLock.add(promptResult);
         requireSuccess(
             context.service.lock(toLock),
             "Failed to lock collection"
@@ -83,18 +85,21 @@ class UnlockPromptTest {
             "Failed to unlock collection"
         );
         DBusPath unlockPrompt = unlockResult.b;
-        if (SecretServiceProvider.isProvider(SecretServiceProvider.KWALLET)) {
-            assertNotEquals("/", unlockPrompt.getPath());
-            var unlocked =
-                Util.promptAndGetResultAsArrayList(unlockPrompt);
-            assertFalse(unlocked.isEmpty());
-            assertEquals("/", unlocked.getFirst().getPath());
-        }
-        if (SecretServiceProvider.isProvider(SecretServiceProvider.GNOME_KEYRING)) {
-            assertNotEquals("/", unlockPrompt.getPath());
-            var unlocked =
-                Util.promptAndGetResultAsArrayList(unlockPrompt);
-            assertTrue(unlocked.isEmpty());
+        switch (provider) {
+            case KWALLET, OO7 -> {
+                assertNotEquals("/", unlockPrompt.getPath());
+                var unlocked =
+                    Util.promptAndGetResultAsArrayList(unlockPrompt);
+                assertFalse(unlocked.isEmpty());
+                assertEquals("/", unlocked.getFirst().getPath());
+            }
+            case GNOME_KEYRING -> {
+                assertNotEquals("/", unlockPrompt.getPath());
+                var unlocked =
+                    Util.promptAndGetResultAsArrayList(unlockPrompt);
+                assertTrue(unlocked.isEmpty());
+            }
+            default -> fail("Unsupported Secret Service provider");
         }
         DBusPath deletePrompt = requireSuccess(
             myCollection.delete(),
