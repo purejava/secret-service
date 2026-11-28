@@ -8,7 +8,7 @@
 [![License](https://img.shields.io/github/license/purejava/secret-service.svg)](https://github.com/purejava/secret-service/blob/main/LICENSE)
 <a href="#supported-platforms"><img alt="Linux" src="https://img.shields.io/badge/Linux-supported-blue.svg" /></a>
 
-A Java library for managing secrets on Linux using the secret service DBus. It’s compatible to the GNOME keyring daemon and the kwallet daemon. The latter implements the Secret Service API since version v5.97.0, which was released in August 2022.
+A Java library for managing secrets on Linux using the secret service DBus. It’s compatible to the oo7 Secret Service provider, the GNOME keyring daemon and the kwallet daemon. The latter implements the Secret Service API since version v5.97.0, which was released in August 2022.
 
 # Specification
 The library implements the [Secret Service API Draft 0.2](https://specifications.freedesktop.org/secret-service-spec/latest/).
